@@ -1,0 +1,62 @@
+#!/bin/bash
+
+JQ=/usr/local/bin/jq
+ACCESS_TOKEN='...'
+NOTIFICATIONS_URL='...' #notification api url
+NOTIFICATIONS_PORTAL='...' #notification portal for humans
+
+show_notification () {
+  NOTIFICATION_INFO=$(curl $NOTIFICATIONS_URL 2>/dev/null | $JQ ".[$1].subject.latest_comment_url,.[$1].repository.name,.[$1].subject.title,.[$1].subject.url")
+  LATEST_COMMENT_URL=$(echo $NOTIFICATION_INFO | cut -d'"' -f2)
+  REPO=$(echo $NOTIFICATION_INFO | cut -d'"' -f4)
+  TITLE=$(echo $NOTIFICATION_INFO | cut -d'"' -f6)
+  GENERAL_URL=$(echo $NOTIFICATION_INFO | cut -d'"' -f6)
+
+  # sometimes latest_comment_url="null", for example when PR title is set
+  [[ $LATEST_COMMENT_URL == "null" ]] && NOTIFICATION_DETAILS_URL="$GENERAL_URL" || NOTIFICATION_DETAILS_URL="$LATEST_COMMENT_URL"
+
+  NOTIFICATION_DETAILS=$(echo $NOTIFICATION_DETAILS_URL | tr -d '"' | curl "$(cat -)?access_token=..." 2>/dev/null | $JQ '.user.login,.body,.html_url,.updated_at,.subject,.title')
+
+  DETAILS_USER=$(echo $NOTIFICATION_DETAILS | cut -d'"' -f2)
+  DETAILS_BODY=$(echo $NOTIFICATION_DETAILS | cut -d'"' -f4)
+  DETAILS_HTML_URL=$(echo $NOTIFICATION_DETAILS | cut -d'"' -f6)
+  DETAILS_UPDATED=$(echo $NOTIFICATION_DETAILS | cut -d'"' -f8)
+  DETAILS_TITLE=$(echo $NOTIFICATION_DETAILS | cut -d'"' -f10)
+
+  [[ $DETAILS_BODY != "" ]] && BODY="$DETAILS_BODY" || BODY="$DETAILS_TITLE"
+
+  `dirname $0`/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier --group 1 -title "$DETAILS_USER on $REPO" -subtitle "${TITLE}" -message "${BODY}" -open $DETAILS_HTML_URL
+}
+
+show_all_notifications () {
+  `dirname $0`/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier --group 1 -title "Missed notifications on Github" -subtitle "$(date)" -message "See all" -open $NOTIFICATIONS_PORTAL
+}
+
+LATEST_ID_FILE=`dirname $0`/latest_id
+
+if [ -f $LATEST_ID_FILE ]; then
+  SHOWN_ID=$(cat $LATEST_ID_FILE)
+else
+  SHOWN_ID="0"
+fi
+
+LATEST_IDS=($(curl $NOTIFICATIONS_URL 2>/dev/null | $JQ '.[0,1,2].id'))
+
+if [ $SHOWN_ID != ${LATEST_IDS[0]} ]; then
+  show_notification 0
+  echo ${LATEST_IDS[0]} > $LATEST_ID_FILE
+else
+  exit
+fi
+
+if [ $SHOWN_ID != ${LATEST_IDS[1]} ]; then
+  show_notification 1
+else
+  exit
+fi
+
+if [ $SHOWN_ID != ${LATEST_IDS[2]} ]; then
+  show_all_notifications
+fi
+
+exit
