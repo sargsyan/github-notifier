@@ -1,62 +1,91 @@
 #!/bin/bash
 
-JQ=/usr/local/bin/jq
-ACCESS_TOKEN='...'
-NOTIFICATIONS_URL='...' #notification api url
-NOTIFICATIONS_PORTAL='...' #notification portal for humans
+readonly JQ=/usr/local/bin/jq
+readonly NOTIFICATIONS_URL='https://api.github.com/notifications' #notification api url
+readonly NOTIFICATIONS_PORTAL='https://github.com/notifications' #notification portal for humans
+readonly APPLICATION_DIR=`dirname $0`
+PATH=$PATH:$APPLICATION_DIR'/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier'
 
-show_notification () {
-  NOTIFICATION_INFO=$(curl $NOTIFICATIONS_URL 2>/dev/null | $JQ ".[$1].subject.latest_comment_url,.[$1].repository.name,.[$1].subject.title,.[$1].subject.url")
-  LATEST_COMMENT_URL=$(echo $NOTIFICATION_INFO | cut -d'"' -f2)
-  REPO=$(echo $NOTIFICATION_INFO | cut -d'"' -f4)
-  TITLE=$(echo $NOTIFICATION_INFO | cut -d'"' -f6)
-  GENERAL_URL=$(echo $NOTIFICATION_INFO | cut -d'"' -f6)
+function show_notification () {
+  local notification_index=$1
+  local notification_info=$(curl $NOTIFICATIONS_URL 2>/dev/null | $JQ ".[$notification_index].subject.latest_comment_url,.[$notification_index].repository.name,.[$notification_index].subject.title,.[$notification_index].subject.url")
+  local latest_comment_url=$(echo $notification_info | cut -d'"' -f2)
+  local repo=$(echo $notification_info | cut -d'"' -f4)
+  local title=$(echo $notification_info | cut -d'"' -f6)
+  local general_url=$(echo $notification_info | cut -d'"' -f6)
 
   # sometimes latest_comment_url="null", for example when PR title is set
-  [[ $LATEST_COMMENT_URL == "null" ]] && NOTIFICATION_DETAILS_URL="$GENERAL_URL" || NOTIFICATION_DETAILS_URL="$LATEST_COMMENT_URL"
+  [[ $latest_comment_url == "null" ]] && notification_details_url="$general_url" || notification_details_url="$latest_comment_url"
 
-  NOTIFICATION_DETAILS=$(echo $NOTIFICATION_DETAILS_URL | tr -d '"' | curl "$(cat -)?access_token=..." 2>/dev/null | $JQ '.user.login,.body,.html_url,.updated_at,.subject,.title')
+  #local access_token=$(configure.sh )
+  local notification_details=$(curl $notification_details_url -H -H "Authorization: token $access_token" 2>/dev/null | $JQ '.user.login,.body,.html_url,.updated_at,.subject,.title')
 
-  DETAILS_USER=$(echo $NOTIFICATION_DETAILS | cut -d'"' -f2)
-  DETAILS_BODY=$(echo $NOTIFICATION_DETAILS | cut -d'"' -f4)
-  DETAILS_HTML_URL=$(echo $NOTIFICATION_DETAILS | cut -d'"' -f6)
-  DETAILS_UPDATED=$(echo $NOTIFICATION_DETAILS | cut -d'"' -f8)
-  DETAILS_TITLE=$(echo $NOTIFICATION_DETAILS | cut -d'"' -f10)
+  local details_user=$(echo $notification_details | cut -d'"' -f2)
+  local details_body=$(echo $notification_details | cut -d'"' -f4)
+  local details_html_url=$(echo $notification_details | cut -d'"' -f6)
+  local details_updated=$(echo $notification_details | cut -d'"' -f8)
+  local details_title=$(echo $notification_details | cut -d'"' -f10)
 
-  [[ $DETAILS_BODY != "" ]] && BODY="$DETAILS_BODY" || BODY="$DETAILS_TITLE"
+  [[ $details_body != "" ]] && body="$details_body" || body="$details_title"
 
-  `dirname $0`/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier --group 1 -title "$DETAILS_USER on $REPO" -subtitle "${TITLE}" -message "${BODY}" -open $DETAILS_HTML_URL
+  terminal-notifier --group 1 -title "$details_user on $repo" -subtitle "${title}" -message "${body}" -open $details_html_url
 }
 
-show_all_notifications () {
-  `dirname $0`/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier --group 1 -title "Missed notifications on Github" -subtitle "$(date)" -message "See all" -open $NOTIFICATIONS_PORTAL
+function show_all_notifications () {
+  terminal-notifier --group 1 -title "Missed notifications on Github" -subtitle "$(date)" -message "See all" -open $NOTIFICATIONS_PORTAL
 }
 
-LATEST_ID_FILE=`dirname $0`/latest_id
+function get_last_shown_commit_id() {
+  local latest_id_file=$1
+  if [ -f $latest_id_file ]; then
+    echo $(cat $latest_id_file)
+  else
+    echo "0"
+  fi
+}
 
-if [ -f $LATEST_ID_FILE ]; then
-  SHOWN_ID=$(cat $LATEST_ID_FILE)
-else
-  SHOWN_ID="0"
-fi
+function save_last_shown_commit_id() {
+  local value=$1
+  local file=$2
+  echo $value > $file
+}
 
-LATEST_IDS=($(curl $NOTIFICATIONS_URL 2>/dev/null | $JQ '.[0,1,2].id'))
+function get_latest_commits_id() {
+  echo $(curl $NOTIFICATIONS_URL 2>/dev/null | $JQ '.[0,1,2].id')
+}
 
-if [ $SHOWN_ID != ${LATEST_IDS[0]} ]; then
-  show_notification 0
-  echo ${LATEST_IDS[0]} > $LATEST_ID_FILE
-else
-  exit
-fi
+# current implementation have limit of 2
+function show_missed_notifications() {
+  local shown_id=$1
+  shift
+  local latest_ids=("$@")
 
-if [ $SHOWN_ID != ${LATEST_IDS[1]} ]; then
-  show_notification 1
-else
-  exit
-fi
+  if [ $shown_id != ${latest_ids[0]} ]; then
+    show_notification 0
+  else
+    exit
+  fi
 
-if [ $SHOWN_ID != ${LATEST_IDS[2]} ]; then
-  show_all_notifications
-fi
+  if [ $shown_id != ${latest_ids[1]} ]; then
+    show_notification 1
+  else
+    exit
+  fi
 
-exit
+  if [ $shown_id != ${latest_ids[2]} ]; then
+    show_all_notifications
+  fi
+}
+
+function main() {
+  local latest_id_file=$APPLICATION_DIR/latest_id
+
+  local last_shown_commit_id=$(get_last_shown_commit_id $latest_id_file)
+  local latest_commit_ids=$(get_latest_commits_id $NOTIFICATIONS_URL)
+
+  show_missed_notifications $shown_id $latest_ids
+
+  save_last_shown_commit_id ${latest_ids[0]} $latest_id_file
+}
+
+main
