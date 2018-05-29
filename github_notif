@@ -1,14 +1,21 @@
 #!/bin/bash
 
-readonly JQ=/usr/local/bin/jq
+readonly JQ=jq
 readonly NOTIFICATIONS_URL='https://api.github.com/notifications' #notification api url
 readonly NOTIFICATIONS_PORTAL='https://github.com/notifications' #notification portal for humans
-readonly APPLICATION_DIR=`dirname $0`
+APPLICATION_DIR=`dirname $0`
 PATH=$PATH:$APPLICATION_DIR'/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier'
 
 function show_notification () {
   local notification_index=$1
-  local notification_info=$(curl $NOTIFICATIONS_URL 2>/dev/null | $JQ ".[$notification_index].subject.latest_comment_url,.[$notification_index].repository.name,.[$notification_index].subject.title,.[$notification_index].subject.url")
+  local notification_info_json;
+  notification_info_json=$(curl $NOTIFICATIONS_URL 2>/dev/null)
+  local call_result=$?
+  if [[ $call_result -ne 0 ]]; then
+    echo "Failed to get notifications from github";
+    exit
+  fi
+  local notification_info=$(echo "$notification_info_json" | $JQ ".[$notification_index].subject.latest_comment_url,.[$notification_index].repository.name,.[$notification_index].subject.title,.[$notification_index].subject.url")
   local latest_comment_url=$(echo $notification_info | cut -d'"' -f2)
   local repo=$(echo $notification_info | cut -d'"' -f4)
   local title=$(echo $notification_info | cut -d'"' -f6)
@@ -18,7 +25,14 @@ function show_notification () {
   [[ $latest_comment_url == "null" ]] && notification_details_url="$general_url" || notification_details_url="$latest_comment_url"
 
   #local access_token=$(configure.sh )
-  local notification_details=$(curl $notification_details_url -H -H "Authorization: token $access_token" 2>/dev/null | $JQ '.user.login,.body,.html_url,.updated_at,.subject,.title')
+  local notification_details_json;
+  notification_details_json=$(curl $notification_details_url -H "Authorization: token $access_token" 2>/dev/null)
+  local call_result=$?
+  if [[ $call_result -ne 0 ]]; then
+    echo "Failed to get notifications details from github";
+    exit
+  fi
+  local notification_details=$(echo "$notification_details_json" | $JQ '.user.login,.body,.html_url,.updated_at,.subject,.title')
 
   local details_user=$(echo $notification_details | cut -d'"' -f2)
   local details_body=$(echo $notification_details | cut -d'"' -f4)
@@ -51,7 +65,13 @@ function save_last_shown_commit_id() {
 }
 
 function get_latest_commits_id() {
-  echo $(curl $NOTIFICATIONS_URL 2>/dev/null | $JQ '.[0,1,2].id')
+  notification_info_json=$(curl $NOTIFICATIONS_URL 2>/dev/null)
+  local call_result=$?
+  if [[ $call_result -ne 0 ]]; then
+    echo "Failed to get notifications from github";
+    exit
+  fi
+  echo $(echo "$notification_info_json" | $JQ '.[0,1,2].id' | tr -d '"')
 }
 
 # current implementation have limit of 2
@@ -60,32 +80,37 @@ function show_missed_notifications() {
   shift
   local latest_ids=("$@")
 
-  if [ $shown_id != ${latest_ids[0]} ]; then
+  if [[ $shown_id != ${latest_ids[0]} ]]; then
     show_notification 0
   else
-    exit
+    echo ${latest_ids[0]}
+    return
   fi
 
-  if [ $shown_id != ${latest_ids[1]} ]; then
+
+  if [[ $shown_id != ${latest_ids[1]} ]]; then
     show_notification 1
   else
-    exit
+    echo ${latest_ids[0]}
+    return
   fi
 
-  if [ $shown_id != ${latest_ids[2]} ]; then
+  if [[ $shown_id != ${latest_ids[2]} ]]; then
     show_all_notifications
   fi
+
+  echo ${latest_ids[0]}
 }
 
 function main() {
-  local latest_id_file=$APPLICATION_DIR/latest_id
+  local latest_id_filename=".latest_id"
+  local latest_id_file=$APPLICATION_DIR/$latest_id_filename
 
   local last_shown_commit_id=$(get_last_shown_commit_id $latest_id_file)
-  local latest_commit_ids=$(get_latest_commits_id $NOTIFICATIONS_URL)
+  local latest_commit_ids=( $(get_latest_commits_id $NOTIFICATIONS_URL) )
 
-  show_missed_notifications $shown_id $latest_ids
-
-  save_last_shown_commit_id ${latest_ids[0]} $latest_id_file
+  local updated_last_shown_commit_id=$(show_missed_notifications $last_shown_commit_id ${latest_commit_ids[@]})
+  save_last_shown_commit_id $updated_last_shown_commit_id $latest_id_file
 }
 
 main
