@@ -64,14 +64,16 @@ function save_last_shown_commit_id() {
   echo $value > $file
 }
 
-function get_latest_commits_id() {
+function get_latest_commit_ids() {
   notification_info_json=$(curl $NOTIFICATIONS_URL 2>/dev/null)
   local call_result=$?
   if [[ $call_result -ne 0 ]]; then
     echo "Failed to get notifications from github";
-    exit
+    return 1
   fi
-  echo $(echo "$notification_info_json" | $JQ '.[0,1,2].id' | tr -d '"')
+  local result_array=( $(echo "$notification_info_json" | $JQ '.[0,1,2].id' | tr -d '"') )
+  echo result_array
+  return 0
 }
 
 # current implementation have limit of 2
@@ -107,7 +109,12 @@ function main() {
   local latest_id_file=$APPLICATION_DIR/$latest_id_filename
 
   local last_shown_commit_id=$(get_last_shown_commit_id $latest_id_file)
-  local latest_commit_ids=( $(get_latest_commits_id $NOTIFICATIONS_URL) )
+  local latest_commit_ids;
+  latest_commit_ids=$(get_latest_commit_ids)
+  local call_result=$?
+  if [[ call_result -ne 0 ]]; then
+    echo $latest_commit_ids;
+  fi
 
   local updated_last_shown_commit_id=$(show_missed_notifications $last_shown_commit_id ${latest_commit_ids[@]})
   save_last_shown_commit_id $updated_last_shown_commit_id $latest_id_file
