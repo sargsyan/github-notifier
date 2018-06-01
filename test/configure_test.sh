@@ -2,10 +2,8 @@
 
 APP=./configure.sh
 
-SERVICE_NAME='github_notif'
-
 oneTimeSetUp() {
-  rm .github_notif_conf
+  rm .github_notif_conf 2> /dev/null
   source $APP > /dev/null
 }
 

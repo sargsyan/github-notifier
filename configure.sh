@@ -1,13 +1,14 @@
 #!/bin/bash
 
-. macos/keychain_accessor.sh
-
-readonly APP_NAME=$(basename $0)
+readonly APP_NAME=$(basename $BASH_SOURCE)
+readonly DIR_NAME=$(dirname $BASH_SOURCE)
 readonly SERVICE_NAME='github_notif'
-readonly CONFIG_FILE=".${SERVICE_NAME}_conf"
+readonly CONFIG_FILE=$DIR_NAME/.${SERVICE_NAME}_conf
 
 readonly STATUS_ACTIVE='active'
 readonly STATUS_INACTIVE='inactive'
+
+. $DIR_NAME/macos/keychain_accessor.sh
 
 function usage() {
 cat <<- EOF
