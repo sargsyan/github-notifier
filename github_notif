@@ -4,7 +4,6 @@ readonly JQ=jq
 readonly NOTIFICATIONS_URL='https://api.github.com/notifications' #notification api url
 readonly NOTIFICATIONS_PORTAL='https://github.com/notifications' #notification portal for humans
 APPLICATION_DIR=`dirname $0`
-PATH=$PATH:$APPLICATION_DIR'/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier'
 
 function show_notification () {
   local notifications_json=$1
