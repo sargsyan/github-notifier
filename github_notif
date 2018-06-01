@@ -7,19 +7,13 @@ APPLICATION_DIR=`dirname $0`
 PATH=$PATH:$APPLICATION_DIR'/terminal-notifier_1.4.2/terminal-notifier.app/Contents/MacOS/terminal-notifier'
 
 function show_notification () {
-  local notification_index=$1
-  local notification_info_json;
-  notification_info_json=$(curl $NOTIFICATIONS_URL 2>/dev/null)
-  local call_result=$?
-  if [[ $call_result -ne 0 ]]; then
-    echo "Failed to get notifications from github";
-    exit
-  fi
-  local notification_info=$(echo "$notification_info_json" | $JQ ".[$notification_index].subject.latest_comment_url,.[$notification_index].repository.name,.[$notification_index].subject.title,.[$notification_index].subject.url")
+  local notifications_json=$1
+  local notification_index=$2
+  local notification_info=$(echo "$notifications_json" | $JQ ".[$notification_index].subject.latest_comment_url,.[$notification_index].repository.name,.[$notification_index].subject.title,.[$notification_index].subject.url")
   local latest_comment_url=$(echo $notification_info | cut -d'"' -f2)
   local repo=$(echo $notification_info | cut -d'"' -f4)
   local title=$(echo $notification_info | cut -d'"' -f6)
-  local general_url=$(echo $notification_info | cut -d'"' -f6)
+  local general_url=$(echo $notification_info | cut -d'"' -f8)
 
   # sometimes latest_comment_url="null", for example when PR title is set
   [[ $latest_comment_url == "null" ]] && notification_details_url="$general_url" || notification_details_url="$latest_comment_url"
@@ -29,8 +23,8 @@ function show_notification () {
   notification_details_json=$(curl $notification_details_url -H "Authorization: token $access_token" 2>/dev/null)
   local call_result=$?
   if [[ $call_result -ne 0 ]]; then
-    echo "Failed to get notifications details from github";
-    exit
+    echo "Failed to get notification details from github";
+    return 1
   fi
   local notification_details=$(echo "$notification_details_json" | $JQ '.user.login,.body,.html_url,.updated_at,.subject,.title')
 
@@ -64,44 +58,45 @@ function save_last_shown_commit_id() {
   echo $value > $file
 }
 
-function get_latest_commit_ids() {
-  notification_info_json=$(curl $NOTIFICATIONS_URL 2>/dev/null)
+function get_notifications() {
+  local access_token=''
+  notifications_json=$(curl ${NOTIFICATIONS_URL}?access_token=$access_token 2>/dev/null)
   local call_result=$?
   if [[ $call_result -ne 0 ]]; then
     echo "Failed to get notifications from github";
     return 1
   fi
-  local result_array=( $(echo "$notification_info_json" | $JQ '.[0,1,2].id' | tr -d '"') )
-  echo result_array
+  echo "$notifications_json"
   return 0
 }
 
 # current implementation have limit of 2
 function show_missed_notifications() {
   local shown_id=$1
-  shift
-  local latest_ids=("$@")
+  local notifications_json=$2
 
-  if [[ $shown_id != ${latest_ids[0]} ]]; then
-    show_notification 0
+  local latest_commit_ids=( $(echo $notifications_json | $JQ '.[0,1,2].id' | tr -d '"') );
+
+  if [[ $shown_id != ${latest_commit_ids[0]} ]]; then
+    show_notification "$notifications_json" 0
   else
-    echo ${latest_ids[0]}
+    echo ${latest_commit_ids[0]}
     return
   fi
 
 
-  if [[ $shown_id != ${latest_ids[1]} ]]; then
-    show_notification 1
+  if [[ $shown_id != ${latest_commit_ids[1]} ]]; then
+    show_notification "$notifications_json" 1
   else
-    echo ${latest_ids[0]}
+    echo ${latest_commit_ids[0]}
     return
   fi
 
-  if [[ $shown_id != ${latest_ids[2]} ]]; then
+  if [[ $shown_id != ${latest_commit_ids[2]} ]]; then
     show_all_notifications
   fi
 
-  echo ${latest_ids[0]}
+  echo ${latest_commit_ids[0]}
 }
 
 function main() {
@@ -109,14 +104,21 @@ function main() {
   local latest_id_file=$APPLICATION_DIR/$latest_id_filename
 
   local last_shown_commit_id=$(get_last_shown_commit_id $latest_id_file)
-  local latest_commit_ids;
-  latest_commit_ids=$(get_latest_commit_ids)
+  local notifications_json;
+  notifications_json=$(get_notifications)
   local call_result=$?
   if [[ call_result -ne 0 ]]; then
-    echo $latest_commit_ids;
+    echo $notifications_json;
+    return 1
   fi
 
-  local updated_last_shown_commit_id=$(show_missed_notifications $last_shown_commit_id ${latest_commit_ids[@]})
+  local updated_last_shown_commit_id
+  updated_last_shown_commit_id=$(show_missed_notifications $last_shown_commit_id "$notifications_json")
+  local call_result=$?
+  if [[ call_result -ne 0 ]]; then
+    echo $updated_last_shown_commit_id;
+    return 1
+  fi
   save_last_shown_commit_id $updated_last_shown_commit_id $latest_id_file
 }
 
