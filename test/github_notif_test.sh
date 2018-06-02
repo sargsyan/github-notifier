@@ -88,7 +88,3 @@ test_show_missed_notifications_on_more_than_two_notifications() {
   assertEquals "3" $(cat temp_commits | tail -n 1)
   rm temp_commits
 }
-
-test_whole_flow() {
-  main
-}
