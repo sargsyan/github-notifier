@@ -59,8 +59,8 @@ function add_config() {
     show_error "Connfiguration $config_name already exists"
     return
   fi
+  create_macos_config $SERVICE_NAME $config_name ${USER} $token &&
   echo $config_name $STATUS_ACTIVE >> $CONFIG_FILE
-  create_macos_config $SERVICE_NAME $config_name ${USER} $token
 }
 
 function remove_config() {

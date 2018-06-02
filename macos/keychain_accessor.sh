@@ -26,6 +26,11 @@ function __do_add_generic_password() {
   local update=$5
   if [ -z "$token" ]; then
     read -s -p "Github access token for ${service_name}: " token
+    if [ -z "$token" ]; then
+      echo
+      echo "Refused to add the config. token cannot be empty"
+      return 1
+    fi
   fi
   security add-generic-password -l $label -s $service_name -a $user -j "Secret key for $label config instance" $update -w $token
 }

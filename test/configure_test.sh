@@ -47,6 +47,14 @@ test_add_with_missing_token() {
   $APP rm config_name
 }
 
+test_add_with_empty_token() {
+  local error=$($APP add config_name <<< '')
+  assertEquals 'should be line break before error message' '' "$(echo "$error" | head -n 1)"
+  assertEquals 'Refused to add the config. token cannot be empty' "$(echo "$error" | tail -n 1)"
+  local config=$($APP list) | grep config_name
+  assertEquals 'config should not be added without token' '' "$config"
+}
+
 test_add_duplicate() {
   $APP add config_name token
   local error=$($APP add config_name token)
