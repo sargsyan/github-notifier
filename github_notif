@@ -19,10 +19,10 @@ function show_notification () {
 
   #local access_token=$(configure.sh )
   local notification_details_json;
-  notification_details_json=$(curl $notification_details_url -H "Authorization: token $access_token" 2>/dev/null)
+  notification_details_json=$(do_github_remote_call $notification_details_url $access_token)
   local call_result=$?
   if [[ $call_result -ne 0 ]]; then
-    echo "Failed to get notification details from github";
+    echo $notification_details_json;
     return 1
   fi
   local notification_details=$(echo "$notification_details_json" | $JQ '.user.login,.body,.html_url,.updated_at,.subject,.title')
@@ -57,15 +57,32 @@ function save_last_shown_commit_id() {
   echo $value > $file
 }
 
-function get_notifications() {
-  local access_token=''
-  notifications_json=$(curl ${NOTIFICATIONS_URL}?access_token=$access_token 2>/dev/null)
+function do_github_remote_call() {
+  local url=$1
+  local access_token=$2
+  local response;
+  response=$(curl -w "%{http_code}" $url -H "Authorization: token $access_token" 2>/dev/null)
   local call_result=$?
   if [[ $call_result -ne 0 ]]; then
-    echo "Failed to get notifications from github";
+    echo "Failed to connect to $url";
     return 1
   fi
-  echo "$notifications_json"
+
+  local response_status_code=$(echo "$response" | tail -n 1)
+  local response_body=$(echo "$response" | sed \$d)
+  if [[ $response_status_code != 200 ]]; then
+    local error_message=$(echo "$response_body" | $JQ -r .message )
+    local call_result=$?
+    if [[ $call_result -ne 0 ]]; then
+      echo "An error occured while accessing $url. The output of notifications is not of known format"
+      return 1
+    fi
+    if [[ "$error_message" != "null" ]]; then
+      echo "An error occured while accessing $url: $error_message"
+      return 1
+    fi
+  fi
+  echo $response_body
   return 0
 }
 
@@ -74,7 +91,7 @@ function show_missed_notifications() {
   local shown_id=$1
   local notifications_json=$2
 
-  local latest_commit_ids=( $(echo $notifications_json | $JQ '.[0,1,2].id' | tr -d '"') );
+  local latest_commit_ids=( $(echo "$notifications_json" | $JQ '.[0,1,2].id' | tr -d '"') );
 
   if [[ $shown_id != ${latest_commit_ids[0]} ]]; then
     show_notification "$notifications_json" 0
@@ -99,14 +116,15 @@ function show_missed_notifications() {
 }
 
 function main() {
+
   local latest_id_filename=".latest_id"
   local latest_id_file=$APPLICATION_DIR/$latest_id_filename
 
   local last_shown_commit_id=$(get_last_shown_commit_id $latest_id_file)
   local notifications_json;
-  notifications_json=$(get_notifications)
+  notifications_json=$(do_github_remote_call $NOTIFICATIONS_URL '')
   local call_result=$?
-  if [[ call_result -ne 0 ]]; then
+  if [[ $call_result -ne 0 ]]; then
     echo $notifications_json;
     return 1
   fi
@@ -114,7 +132,7 @@ function main() {
   local updated_last_shown_commit_id
   updated_last_shown_commit_id=$(show_missed_notifications $last_shown_commit_id "$notifications_json")
   local call_result=$?
-  if [[ call_result -ne 0 ]]; then
+  if [[ $call_result -ne 0 ]]; then
     echo $updated_last_shown_commit_id;
     return 1
   fi

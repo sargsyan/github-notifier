@@ -27,7 +27,7 @@ function construct_notification() {
 }
 
 alias terminal-notifier=echo
-alias curl=mock_request
+alias do_github_remote_call=mock_request
 
 readonly COMMIT1=$(construct_notification "The first commit")
 readonly COMMIT2=$(construct_notification "The second commit")
@@ -37,7 +37,9 @@ readonly MORE_THAN_ONE_MISSED_COMMITS_PATTERN="--group 1 -title Missed notificat
 readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
 
 oneTimeSetUp() {
-  source $APP > /dev/null
+  (cat $APP | sed \$d ) > temp_$APP
+  source temp_$APP > /dev/null
+  rm temp_$APP
   readonly APPLICATION_DIR=.
 }
 
