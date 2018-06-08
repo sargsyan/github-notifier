@@ -50,7 +50,35 @@ test_show_notification() {
 
 test_show_all_notifications() {
   local mock_call_arg_list=$(show_all_notifications)
-  assertTrue 'actual value deoes not satisfy the pattern' '[[ "$mock_call_arg_list" =~ $MORE_THAN_ONE_MISSED_COMMITS_PATTERN ]]'
+  assertTrue 'actual value does not satisfy the pattern' '[[ "$mock_call_arg_list" =~ $MORE_THAN_ONE_MISSED_COMMITS_PATTERN ]]'
+}
+
+test_show_missed_notifications_when_no_notification() {
+  local shown_id=5
+  local result=$(show_missed_notifications $shown_id "[]")
+  assertEquals "5" "$result"
+}
+
+test_show_missed_notifications_on_total_one_notification() {
+  local shown_id=5
+  local one_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
+  show_missed_notifications $shown_id "[$one_notification]" > temp_commits
+  assertEquals 2 $(cat temp_commits | wc -l)
+  assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
+  assertEquals "3" "$(cat temp_commits | tail -n 1 )"
+  rm temp_commits
+}
+
+test_show_missed_notifications_on_total_two_notifications() {
+  local shown_id=5
+  local first_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
+  local second_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[1])
+  show_missed_notifications $shown_id "[$first_notification, $second_notification]" > temp_commits
+  assertEquals 3 $(cat temp_commits | wc -l)
+  assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
+  assertEquals "$COMMIT2" "$(sed -n '2p' temp_commits)"
+  assertEquals "3" "$(cat temp_commits | tail -n 1 )"
+  rm temp_commits
 }
 
 test_show_missed_notifications_when_no_new_notification() {
@@ -84,7 +112,7 @@ test_show_missed_notifications_on_more_than_two_notifications() {
   assertEquals 4 $(cat temp_commits | wc -l)
   assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
   assertEquals "$COMMIT2" "$(sed -n '2p' temp_commits)"
-  assertTrue 'actual value deoes not satisfy the pattern' '[[ "$(sed -n '3p' temp_commits)" =~ $MORE_THAN_ONE_MISSED_COMMITS_PATTERN ]]'
+  assertTrue 'actual value does not satisfy the pattern' '[[ "$(sed -n '3p' temp_commits)" =~ $MORE_THAN_ONE_MISSED_COMMITS_PATTERN ]]'
   assertEquals "3" $(cat temp_commits | tail -n 1)
   rm temp_commits
 }

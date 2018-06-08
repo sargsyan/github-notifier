@@ -17,7 +17,6 @@ function show_notification () {
   # sometimes latest_comment_url="null", for example when PR title is set
   [[ $latest_comment_url == "null" ]] && notification_details_url="$general_url" || notification_details_url="$latest_comment_url"
 
-  #local access_token=$(configure.sh )
   local notification_details_json;
   notification_details_json=$(do_github_remote_call $notification_details_url $access_token)
   local call_result=$?
@@ -93,22 +92,21 @@ function show_missed_notifications() {
 
   local latest_commit_ids=( $(echo "$notifications_json" | $JQ '.[0,1,2].id' | tr -d '"') );
 
-  if [[ $shown_id != ${latest_commit_ids[0]} ]]; then
+  if [[ ${latest_commit_ids[0]} != null && $shown_id != ${latest_commit_ids[0]} ]]; then
     show_notification "$notifications_json" 0
   else
-    echo ${latest_commit_ids[0]}
+    echo $shown_id
     return
   fi
 
-
-  if [[ $shown_id != ${latest_commit_ids[1]} ]]; then
+  if [[ ${latest_commit_ids[1]} != null && $shown_id != ${latest_commit_ids[1]} ]]; then
     show_notification "$notifications_json" 1
   else
     echo ${latest_commit_ids[0]}
     return
   fi
 
-  if [[ $shown_id != ${latest_commit_ids[2]} ]]; then
+  if [[ ${latest_commit_ids[2]} != null && $shown_id != ${latest_commit_ids[2]} ]]; then
     show_all_notifications
   fi
 
@@ -122,7 +120,7 @@ function main() {
 
   local last_shown_commit_id=$(get_last_shown_commit_id $latest_id_file)
   local notifications_json;
-  notifications_json=$(do_github_remote_call $NOTIFICATIONS_URL '')
+  notifications_json=$(do_github_remote_call $NOTIFICATIONS_URL $access_token)
   local call_result=$?
   if [[ $call_result -ne 0 ]]; then
     echo $notifications_json;
