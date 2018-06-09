@@ -8,7 +8,7 @@ readonly CONFIG_FILE=$DIR_NAME/.${SERVICE_NAME}_conf
 readonly STATUS_ACTIVE='active'
 readonly STATUS_INACTIVE='inactive'
 
-. $DIR_NAME/macos/keychain_accessor.sh
+. $DIR_NAME/lib/macos/keychain_accessor.sh
 
 function usage() {
 cat <<- EOF
