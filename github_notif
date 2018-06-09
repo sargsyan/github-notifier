@@ -87,8 +87,8 @@ function do_github_remote_call() {
 
 # current implementation have limit of 2
 function show_missed_notifications() {
-  local shown_id=$1
-  local notifications_json=$2
+  local notifications_json=$1
+  local shown_id=$2
 
   local latest_commit_ids=( $(echo "$notifications_json" | $JQ '.[0,1,2].id' | tr -d '"') );
 
@@ -128,7 +128,7 @@ function main() {
   fi
 
   local updated_last_shown_commit_id
-  updated_last_shown_commit_id=$(show_missed_notifications $last_shown_commit_id "$notifications_json")
+  updated_last_shown_commit_id=$(show_missed_notifications "$notifications_json" $last_shown_commit_id)
   local call_result=$?
   if [[ $call_result -ne 0 ]]; then
     echo $updated_last_shown_commit_id;

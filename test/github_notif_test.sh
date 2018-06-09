@@ -55,14 +55,14 @@ test_show_all_notifications() {
 
 test_show_missed_notifications_when_no_notification() {
   local shown_id=5
-  local result=$(show_missed_notifications $shown_id "[]")
+  local result=$(show_missed_notifications "[]" $shown_id)
   assertEquals "5" "$result"
 }
 
 test_show_missed_notifications_on_total_one_notification() {
   local shown_id=5
   local one_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
-  show_missed_notifications $shown_id "[$one_notification]" > temp_commits
+  show_missed_notifications "[$one_notification]" $shown_id > temp_commits
   assertEquals 2 $(cat temp_commits | wc -l)
   assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
   assertEquals "3" "$(cat temp_commits | tail -n 1 )"
@@ -73,7 +73,7 @@ test_show_missed_notifications_on_total_two_notifications() {
   local shown_id=5
   local first_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
   local second_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[1])
-  show_missed_notifications $shown_id "[$first_notification, $second_notification]" > temp_commits
+  show_missed_notifications "[$first_notification, $second_notification]" $shown_id > temp_commits
   assertEquals 3 $(cat temp_commits | wc -l)
   assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
   assertEquals "$COMMIT2" "$(sed -n '2p' temp_commits)"
@@ -83,13 +83,13 @@ test_show_missed_notifications_on_total_two_notifications() {
 
 test_show_missed_notifications_when_no_new_notification() {
   local shown_id=3
-  local result=$(show_missed_notifications $shown_id "$NOTIFICATIONS_JSON")
+  local result=$(show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id)
   assertEquals "3" "$result"
 }
 
 test_show_missed_notifications_on_one_new_notification() {
   local shown_id=2
-  show_missed_notifications $shown_id "$NOTIFICATIONS_JSON" > temp_commits
+  show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id > temp_commits
   assertEquals 2 $(cat temp_commits | wc -l)
   assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
   assertEquals "3" "$(cat temp_commits | tail -n 1 )"
@@ -98,7 +98,7 @@ test_show_missed_notifications_on_one_new_notification() {
 
 test_show_missed_notifications_on_two_new_notifications() {
   local shown_id=1
-  show_missed_notifications $shown_id "$NOTIFICATIONS_JSON" > temp_commits
+  show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id > temp_commits
   assertEquals 3 $(cat temp_commits | wc -l)
   assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
   assertEquals "$COMMIT2" "$(sed -n '2p' temp_commits)"
@@ -108,7 +108,7 @@ test_show_missed_notifications_on_two_new_notifications() {
 
 test_show_missed_notifications_on_more_than_two_notifications() {
   local shown_id=0
-  show_missed_notifications $shown_id "$NOTIFICATIONS_JSON" > temp_commits
+  show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id > temp_commits
   assertEquals 4 $(cat temp_commits | wc -l)
   assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
   assertEquals "$COMMIT2" "$(sed -n '2p' temp_commits)"
