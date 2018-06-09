@@ -7,6 +7,10 @@ oneTimeSetUp() {
   source $APP > /dev/null
 }
 
+oneTimeTearDown() {
+  rm .github_notif_conf 2> /dev/null
+}
+
 test_list_on_empty_configs() {
   assertEquals '' "$($APP list)"
 }
