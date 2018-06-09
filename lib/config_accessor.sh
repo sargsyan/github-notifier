@@ -37,7 +37,8 @@ function remove_config() {
   local config_name=$1
   local line_number=$(grep -n "$config_name " $CONFIG_FILE| cut -f1 -d:)
   if [ -n "$line_number" ]; then
-    sed -i -e "${line_number}d" $CONFIG_FILE
+    sed -i .bak "${line_number}d" $CONFIG_FILE
+    rm $CONFIG_FILE.bak
     remove_macos_config $config_name $SERVICE_NAME ${USER}
     assert_successful $? "Failed to remove $config_name"
   fi
@@ -67,7 +68,8 @@ function update_config() {
   local config_name=$1
   local activity_status=$2
   local line_number=$(grep -wn "$config_name " $CONFIG_FILE | cut -d: -f1)
-  sed -i -e "${line_number}s/.*/$config_name $activity_status/" $CONFIG_FILE
+  sed -i .bak "${line_number}s/.*/$config_name $activity_status/" $CONFIG_FILE
+  rm $CONFIG_FILE.bak
 }
 
 function update_token() {
