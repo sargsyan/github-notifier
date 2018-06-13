@@ -25,7 +25,7 @@ function add_config() {
   local token=$2
   assert_is_set "Configuration name" $config_name
   if config_exists $config_name; then
-    show_error "Connfiguration $config_name already exists"
+    show_error "Configuration $config_name already exists"
     return
   fi
   create_macos_config $SERVICE_NAME $config_name ${USER} $token &&
@@ -37,7 +37,7 @@ function remove_config() {
   local config_name=$1
   local line_number=$(grep -n "$config_name " $CONFIG_FILE| cut -f1 -d:)
   if [ -n "$line_number" ]; then
-    sed -i .bak "${line_number}d" $CONFIG_FILE
+    sed -i .bak "${line_number}d" $CONFIG_FILE &&
     rm $CONFIG_FILE.bak
     remove_macos_config $config_name $SERVICE_NAME ${USER}
     assert_successful $? "Failed to remove $config_name"
@@ -50,7 +50,7 @@ function activate_config() {
   if config_exists $config_name; then
     update_config $config_name $STATUS_ACTIVE
   else
-    show_error "Connfiguration $config_name does not exist"
+    show_error "Configuration $config_name does not exist"
   fi
 }
 
@@ -60,15 +60,15 @@ function deactivate_config() {
   if config_exists $config_name; then
     update_config $config_name $STATUS_INACTIVE
   else
-    show_error "Connfiguration $config_name does not exist"
+    show_error "Configuration $config_name does not exist"
   fi
 }
 
 function update_config() {
   local config_name=$1
   local activity_status=$2
-  local line_number=$(grep -wn "$config_name " $CONFIG_FILE | cut -d: -f1)
-  sed -i .bak "${line_number}s/.*/$config_name $activity_status/" $CONFIG_FILE
+  local line_number=$(grep -wn "$config_name" $CONFIG_FILE | cut -d: -f1)
+  sed -i .bak "${line_number}s/.*/$config_name $activity_status/" $CONFIG_FILE &&
   rm $CONFIG_FILE.bak
 }
 
@@ -79,7 +79,7 @@ function update_token() {
   if config_exists $config_name; then
     create_or_update_macos_config $SERVICE_NAME $config_name ${USER} $token
   else
-    show_error "Connfiguration $config_name does not exist"
+    show_error "Configuration $config_name does not exist"
   fi
 }
 
@@ -89,12 +89,18 @@ function get_token() {
   if config_exists $config_name; then
     get_macos_config $SERVICE_NAME $config_name
   else
-    show_error "Connfiguration $config_name does not exist"
+    show_error "Configuration $config_name does not exist"
   fi
 }
 
 function list_configs() {
   cat $CONFIG_FILE
+}
+
+function get_active_configs() {
+  if [ -f $CONFIG_FILE ]; then
+    cat $CONFIG_FILE | grep ' active' | cut -d' ' -f1
+  fi
 }
 
 function ensure_config_file_is_created() {

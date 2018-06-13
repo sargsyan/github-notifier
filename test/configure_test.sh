@@ -31,6 +31,28 @@ test_list_on_two_configs() {
   $APP rm config_name2
 }
 
+test_get_active_configs_on_empty_configs() {
+  local active_configs=$(get_active_configs)
+  assertEquals '' "$active_configs"
+}
+
+test_get_active_configs() {
+  $APP add config_name token
+  $APP add config_name2 token
+  $APP add config_name3 token
+  $APP add config_name4 token
+  $APP deactivate config_name2
+  $APP deactivate config_name4
+  local active_configs=$(get_active_configs)
+  assertEquals 2 $(echo "$active_configs" | wc -l )
+  assertEquals 'config_name' "$(echo "$active_configs" | head -n 1)"
+  assertEquals 'config_name3' "$(echo "$active_configs" | tail -n 1)"
+  $APP rm config_name
+  $APP rm config_name2
+  $APP rm config_name3
+  $APP rm config_name4
+}
+
 test_remove_missing() {
   local error=$($APP rm missing)
   assertEquals '' "$error"
@@ -62,7 +84,7 @@ test_add_with_empty_token() {
 test_add_duplicate() {
   $APP add config_name token
   local error=$($APP add config_name token)
-  assertEquals 'Connfiguration config_name already exists' "$error"
+  assertEquals 'Configuration config_name already exists' "$error"
   local actual_token=$(get_token config_name)
   assertEquals 'token' "$actual_token"
   $APP rm config_name
@@ -89,14 +111,25 @@ test_activate_and_deactive_config() {
   $APP rm config_name
 }
 
+test_deactivate_config_one_from_many() {
+  $APP add config_name token
+  $APP add config_name2 token
+  $APP deactivate config_name
+  assertEquals 2 $($APP list | wc -l)
+  assertEquals 'config_name inactive' "$($APP list | head -n 1)"
+  assertEquals 'config_name2 active' "$($APP list | tail -n 1)"
+  $APP rm config_name
+  $APP rm config_name2
+}
+
 test_activate_missing_config() {
   local error=$($APP activate missing)
-  assertEquals 'Connfiguration missing does not exist' "$error"
+  assertEquals 'Configuration missing does not exist' "$error"
 }
 
 test_deactivate_missing_config() {
   local error=$($APP deactivate missing)
-  assertEquals 'Connfiguration missing does not exist' "$error"
+  assertEquals 'Configuration missing does not exist' "$error"
 }
 
 test_token_update_on_active_token() {
@@ -119,7 +152,7 @@ test_token_update_on_inactive_token() {
 test_token_update_missing_config_name() {
   local missing=missing
   error=$($APP token update $missing new_token)
-  assertEquals "Connfiguration $missing does not exist" "$error"
+  assertEquals "Configuration $missing does not exist" "$error"
 }
 
 test_token_missing_subcommand() {
