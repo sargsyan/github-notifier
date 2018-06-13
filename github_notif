@@ -3,7 +3,10 @@
 readonly JQ=jq
 readonly NOTIFICATIONS_URL='https://api.github.com/notifications' #notification api url
 readonly NOTIFICATIONS_PORTAL='https://github.com/notifications' #notification portal for humans
+readonly DIR_NAME=$(dirname $BASH_SOURCE)
 APPLICATION_DIR=`dirname $0`
+
+. $DIR_NAME/lib/config_accessor.sh
 
 function show_notification () {
   local notifications_json=$1
