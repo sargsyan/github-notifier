@@ -5,6 +5,7 @@ readonly NOTIFICATIONS_URL='https://api.github.com/notifications' #notification 
 readonly NOTIFICATIONS_PORTAL='https://github.com/notifications' #notification portal for humans
 readonly DIR_NAME=$(dirname $BASH_SOURCE)
 APPLICATION_DIR=`dirname $0`
+readonly LATEST_ID_FILE="$APPLICATION_DIR/.latest_id"
 
 . $DIR_NAME/lib/config_accessor.sh
 
@@ -45,9 +46,9 @@ function show_all_notifications () {
 }
 
 function get_last_shown_commit_id() {
-  local latest_id_file=$1
-  if [ -f $latest_id_file ]; then
-    echo $(cat $latest_id_file)
+
+  if [ -f $LATEST_ID_FILE ]; then
+    echo $(cat $LATEST_ID_FILE)
   else
     echo "0"
   fi
@@ -55,8 +56,7 @@ function get_last_shown_commit_id() {
 
 function save_last_shown_commit_id() {
   local value=$1
-  local file=$2
-  echo $value > $file
+  echo $value > $LATEST_ID_FILE
 }
 
 function do_github_remote_call() {
@@ -117,27 +117,31 @@ function show_missed_notifications() {
 }
 
 function main() {
-
-  local latest_id_filename=".latest_id"
-  local latest_id_file=$APPLICATION_DIR/$latest_id_filename
-
-  local last_shown_commit_id=$(get_last_shown_commit_id $latest_id_file)
-  local notifications_json;
-  notifications_json=$(do_github_remote_call $NOTIFICATIONS_URL $access_token)
-  local call_result=$?
-  if [[ $call_result -ne 0 ]]; then
-    echo $notifications_json;
-    return 1
+  local active_configs=$(get_active_configs)
+  if [ -z "$active_configs" ]; then
+     echo "There is no any active configuration to get notifications";
+     return
   fi
 
-  local updated_last_shown_commit_id
-  updated_last_shown_commit_id=$(show_missed_notifications "$notifications_json" $last_shown_commit_id)
-  local call_result=$?
-  if [[ $call_result -ne 0 ]]; then
-    echo $updated_last_shown_commit_id;
-    return 1
-  fi
-  save_last_shown_commit_id $updated_last_shown_commit_id $latest_id_file
+  for config_name in $active_configs ; do
+    local last_shown_commit_id=$(get_last_shown_commit_id)
+    local notifications_json;
+    notifications_json=$(do_github_remote_call $NOTIFICATIONS_URL $access_token)
+    local call_result=$?
+    if [[ $call_result -ne 0 ]]; then
+      echo $notifications_json;
+      return 1
+    fi
+
+    local updated_last_shown_commit_id
+    updated_last_shown_commit_id=$(show_missed_notifications "$notifications_json" $last_shown_commit_id)
+    local call_result=$?
+    if [[ $call_result -ne 0 ]]; then
+      echo $updated_last_shown_commit_id;
+      return 1
+    fi
+    save_last_shown_commit_id $updated_last_shown_commit_id
+  done
 }
 
 main

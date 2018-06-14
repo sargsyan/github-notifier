@@ -26,6 +26,10 @@ function construct_notification() {
   echo "--group 1 -title $user on $project -subtitle Greetings -message $commit_comment -open $commit_url"
 }
 
+function mock_show_missed_notifications() {
+  echo "1";
+}
+
 alias terminal-notifier=echo
 alias do_github_remote_call=mock_request
 
@@ -115,4 +119,19 @@ test_show_missed_notifications_on_more_than_two_notifications() {
   assertTrue 'actual value does not satisfy the pattern' '[[ "$(sed -n '3p' temp_commits)" =~ $MORE_THAN_ONE_MISSED_COMMITS_PATTERN ]]'
   assertEquals "3" $(cat temp_commits | tail -n 1)
   rm temp_commits
+}
+
+test_show_notifications_on_missing_active_configs() {
+  alias get_active_configs=
+  local error=$(main)
+  assertEquals 'There is no any active configuration to get notifications' "$error"
+}
+
+test_show_notifications_on_one_active_config() {
+  alias get_active_configs="echo a"
+  alias show_missed_notifications=mock_show_missed_notifications
+  local error=$(main)
+  assertEquals '' "$error"
+  assertEquals "1" "$(get_last_shown_commit_id)"
+  rm .latest_id
 }
