@@ -132,14 +132,6 @@ test_show_notifications_on_missing_active_configs() {
   assertEquals 'There is no any active configuration to get notifications' "$error"
 }
 
-test_show_notifications_on_one_active_config() {
-  alias get_active_configs="echo config1 config2"
-  alias show_missed_notifications=mock_show_missed_notifications
-  local error=$(main)
-  assertEquals '' "$error"
-  assertEquals "new_commit_id" "$(get_last_shown_commit_id first_config)"
-}
-
 test_show_notifications_on_multiple_active_config() {
   alias get_active_configs="echo config1 config2"
   alias show_missed_notifications=mock_show_missed_notifications
@@ -149,7 +141,7 @@ test_show_notifications_on_multiple_active_config() {
   assertEquals "new_commit_id" "$(get_last_shown_commit_id config2)"
 }
 
-test_show_notifications_on_multiple_active_config_when_connection_fails() {
+test_show_notifications_on_multiple_active_config_when_connections_fails() {
   alias do_github_remote_call=mock_failing_remote_call
   alias get_active_configs="echo config1 config2"
   local error=$(main)
