@@ -33,6 +33,11 @@ function mock_show_missed_notifications() {
 alias terminal-notifier=echo
 alias do_github_remote_call=mock_request
 
+function mock_failing_remote_call() {
+  echo Failed to connect to url;
+  return 1
+}
+
 readonly COMMIT1=$(construct_notification "The first commit")
 readonly COMMIT2=$(construct_notification "The second commit")
 #Todo: handle dates
@@ -142,4 +147,12 @@ test_show_notifications_on_multiple_active_config() {
   assertEquals '' "$error"
   assertEquals "new_commit_id" "$(get_last_shown_commit_id config1)"
   assertEquals "new_commit_id" "$(get_last_shown_commit_id config2)"
+}
+
+test_show_notifications_on_multiple_active_config_when_connection_fails() {
+  alias do_github_remote_call=mock_failing_remote_call
+  alias get_active_configs="echo config1 config2"
+  local error=$(main)
+  assertEquals 'Failed to connect to url' "$(echo "$error" | head -n 1)"
+  assertEquals 'Failed to connect to url' "$(echo "$error" | tail -n 1)"
 }

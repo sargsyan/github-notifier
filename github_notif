@@ -138,7 +138,7 @@ function main() {
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
       echo $notifications_json;
-      return 1
+      continue
     fi
 
     local updated_last_shown_commit_id
