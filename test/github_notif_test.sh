@@ -71,23 +71,21 @@ test_show_missed_notifications_when_no_notification() {
 test_show_missed_notifications_on_total_one_notification() {
   local shown_id=5
   local one_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
-  show_missed_notifications "[$one_notification]" $shown_id > temp_commits
-  assertEquals 2 $(cat temp_commits | wc -l)
-  assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
-  assertEquals "3" "$(cat temp_commits | tail -n 1 )"
-  rm temp_commits
+  local notifications=$(show_missed_notifications "[$one_notification]" $shown_id)
+  assertEquals 2 $(echo "$notifications" | wc -l)
+  assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
+  assertEquals "3" "$(echo "$notifications" | tail -n 1 )"
 }
 
 test_show_missed_notifications_on_total_two_notifications() {
   local shown_id=5
   local first_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
   local second_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[1])
-  show_missed_notifications "[$first_notification, $second_notification]" $shown_id > temp_commits
-  assertEquals 3 $(cat temp_commits | wc -l)
-  assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
-  assertEquals "$COMMIT2" "$(sed -n '2p' temp_commits)"
-  assertEquals "3" "$(cat temp_commits | tail -n 1 )"
-  rm temp_commits
+  local notifications=$(show_missed_notifications "[$first_notification, $second_notification]" $shown_id)
+  assertEquals 3 $(echo "$notifications" | wc -l)
+  assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
+  assertEquals "$COMMIT2" "$(echo "$notifications" | head -n 2 | tail -n 1)"
+  assertEquals "3" "$(echo "$notifications" | tail -n 1 )"
 }
 
 test_show_missed_notifications_when_no_new_notification() {
@@ -98,32 +96,29 @@ test_show_missed_notifications_when_no_new_notification() {
 
 test_show_missed_notifications_on_one_new_notification() {
   local shown_id=2
-  show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id > temp_commits
-  assertEquals 2 $(cat temp_commits | wc -l)
-  assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
-  assertEquals "3" "$(cat temp_commits | tail -n 1 )"
-  rm temp_commits
+  local notifications=$(show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id)
+  assertEquals 2 $(echo "$notifications" | wc -l)
+  assertEquals "$COMMIT1" "$(echo "$notifications"  | head -n 1)"
+  assertEquals "3" "$(echo "$notifications" | tail -n 1 )"
 }
 
 test_show_missed_notifications_on_two_new_notifications() {
   local shown_id=1
-  show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id > temp_commits
-  assertEquals 3 $(cat temp_commits | wc -l)
-  assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
-  assertEquals "$COMMIT2" "$(sed -n '2p' temp_commits)"
-  assertEquals "3" "$(cat temp_commits | tail -n 1 )"
-  rm temp_commits
+  local notifications=$(show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id)
+  assertEquals 3 $(echo "$notifications" | wc -l)
+  assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
+  assertEquals "$COMMIT2" "$(echo "$notifications" | head -n 2 | tail -n 1)"
+  assertEquals "3" "$(echo "$notifications" | tail -n 1 )"
 }
 
 test_show_missed_notifications_on_more_than_two_notifications() {
   local shown_id=0
-  show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id > temp_commits
-  assertEquals 4 $(cat temp_commits | wc -l)
-  assertEquals "$COMMIT1" "$(cat temp_commits | head -n 1)"
-  assertEquals "$COMMIT2" "$(sed -n '2p' temp_commits)"
-  assertTrue 'actual value does not satisfy the pattern' '[[ "$(sed -n '3p' temp_commits)" =~ $MORE_THAN_ONE_MISSED_COMMITS_PATTERN ]]'
-  assertEquals "3" $(cat temp_commits | tail -n 1)
-  rm temp_commits
+  local notifications=$(show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id)
+  assertEquals 4 $(echo "$notifications" | wc -l)
+  assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
+  assertEquals "$COMMIT2" "$(echo "$notifications" | head -n 2 | tail -n 1)"
+  assertTrue 'actual value does not satisfy the pattern' '[[ "$(echo "$notifications" | head -n 3 | tail -n 1)" =~ $MORE_THAN_ONE_MISSED_COMMITS_PATTERN ]]'
+  assertEquals "3" $(echo "$notifications" | tail -n 1)
 }
 
 test_show_notifications_on_missing_active_configs() {
