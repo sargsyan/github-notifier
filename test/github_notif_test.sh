@@ -27,7 +27,7 @@ function construct_notification() {
 }
 
 function mock_show_missed_notifications() {
-  echo "1";
+  echo "new_commit_id"
 }
 
 alias terminal-notifier=echo
@@ -128,10 +128,18 @@ test_show_notifications_on_missing_active_configs() {
 }
 
 test_show_notifications_on_one_active_config() {
-  alias get_active_configs="echo a"
+  alias get_active_configs="echo config1 config2"
   alias show_missed_notifications=mock_show_missed_notifications
   local error=$(main)
   assertEquals '' "$error"
-  assertEquals "1" "$(get_last_shown_commit_id)"
-  rm .latest_id
+  assertEquals "new_commit_id" "$(get_last_shown_commit_id first_config)"
+}
+
+test_show_notifications_on_multiple_active_config() {
+  alias get_active_configs="echo config1 config2"
+  alias show_missed_notifications=mock_show_missed_notifications
+  local error=$(main)
+  assertEquals '' "$error"
+  assertEquals "new_commit_id" "$(get_last_shown_commit_id config1)"
+  assertEquals "new_commit_id" "$(get_last_shown_commit_id config2)"
 }
