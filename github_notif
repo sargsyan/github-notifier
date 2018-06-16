@@ -10,8 +10,9 @@ readonly LATEST_ID_FILE="$APPLICATION_DIR/.latest_id"
 . $DIR_NAME/lib/config_accessor.sh
 
 function show_notification () {
-  local notifications_json=$1
-  local notification_index=$2
+  local access_token=$1
+  local notifications_json=$2
+  local notification_index=$3
   local notification_info=$(echo "$notifications_json" | $JQ ".[$notification_index].subject.latest_comment_url,.[$notification_index].repository.name,.[$notification_index].subject.title,.[$notification_index].subject.url")
   local latest_comment_url=$(echo $notification_info | cut -d'"' -f2)
   local repo=$(echo $notification_info | cut -d'"' -f4)
@@ -98,20 +99,21 @@ function do_github_remote_call() {
 
 # current implementation have limit of 2
 function show_missed_notifications() {
-  local notifications_json=$1
-  local shown_id=$2
+  local access_token=$1
+  local notifications_json=$2
+  local shown_id=$3
 
   local latest_commit_ids=( $(echo "$notifications_json" | $JQ '.[0,1,2].id' | tr -d '"') );
 
   if [[ ${latest_commit_ids[0]} != null && $shown_id != ${latest_commit_ids[0]} ]]; then
-    show_notification "$notifications_json" 0
+    show_notification $access_token "$notifications_json" 0
   else
     echo $shown_id
     return
   fi
 
   if [[ ${latest_commit_ids[1]} != null && $shown_id != ${latest_commit_ids[1]} ]]; then
-    show_notification "$notifications_json" 1
+    show_notification $access_token "$notifications_json" 1
   else
     echo ${latest_commit_ids[0]}
     return
@@ -134,6 +136,7 @@ function main() {
   for config_name in $active_configs ; do
     local last_shown_commit_id=$(get_last_shown_commit_id $config_name)
     local notifications_json;
+    access_token=$(get_token $config_name)
     notifications_json=$(do_github_remote_call $NOTIFICATIONS_URL $access_token)
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then

@@ -18,6 +18,11 @@ function mock_request() {
   fi
 }
 
+function mock_failing_remote_call() {
+  echo Failed to connect to url;
+  return 1
+}
+
 function construct_notification() {
   local commit_comment=$1
   local user=pengwynn
@@ -32,11 +37,6 @@ function mock_show_missed_notifications() {
 
 alias terminal-notifier=echo
 alias do_github_remote_call=mock_request
-
-function mock_failing_remote_call() {
-  echo Failed to connect to url;
-  return 1
-}
 
 readonly COMMIT1=$(construct_notification "The first commit")
 readonly COMMIT2=$(construct_notification "The second commit")
@@ -53,7 +53,7 @@ oneTimeSetUp() {
 }
 
 test_show_notification() {
-  local mock_call_arg_list=$(show_notification "$NOTIFICATIONS_JSON" 0)
+  local mock_call_arg_list=$(show_notification token "$NOTIFICATIONS_JSON" 0)
   assertEquals "$COMMIT1" "$mock_call_arg_list"
 }
 
@@ -64,14 +64,14 @@ test_show_all_notifications() {
 
 test_show_missed_notifications_when_no_notification() {
   local shown_id=5
-  local result=$(show_missed_notifications "[]" $shown_id)
+  local result=$(show_missed_notifications token "[]" $shown_id)
   assertEquals "5" "$result"
 }
 
 test_show_missed_notifications_on_total_one_notification() {
   local shown_id=5
   local one_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
-  local notifications=$(show_missed_notifications "[$one_notification]" $shown_id)
+  local notifications=$(show_missed_notifications token "[$one_notification]" $shown_id)
   assertEquals 2 $(echo "$notifications" | wc -l)
   assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
   assertEquals "3" "$(echo "$notifications" | tail -n 1 )"
@@ -81,7 +81,7 @@ test_show_missed_notifications_on_total_two_notifications() {
   local shown_id=5
   local first_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
   local second_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[1])
-  local notifications=$(show_missed_notifications "[$first_notification, $second_notification]" $shown_id)
+  local notifications=$(show_missed_notifications token "[$first_notification, $second_notification]" $shown_id)
   assertEquals 3 $(echo "$notifications" | wc -l)
   assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
   assertEquals "$COMMIT2" "$(echo "$notifications" | head -n 2 | tail -n 1)"
@@ -90,13 +90,13 @@ test_show_missed_notifications_on_total_two_notifications() {
 
 test_show_missed_notifications_when_no_new_notification() {
   local shown_id=3
-  local result=$(show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id)
+  local result=$(show_missed_notifications token "$NOTIFICATIONS_JSON" $shown_id)
   assertEquals "3" "$result"
 }
 
 test_show_missed_notifications_on_one_new_notification() {
   local shown_id=2
-  local notifications=$(show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id)
+  local notifications=$(show_missed_notifications token "$NOTIFICATIONS_JSON" $shown_id)
   assertEquals 2 $(echo "$notifications" | wc -l)
   assertEquals "$COMMIT1" "$(echo "$notifications"  | head -n 1)"
   assertEquals "3" "$(echo "$notifications" | tail -n 1 )"
@@ -104,7 +104,7 @@ test_show_missed_notifications_on_one_new_notification() {
 
 test_show_missed_notifications_on_two_new_notifications() {
   local shown_id=1
-  local notifications=$(show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id)
+  local notifications=$(show_missed_notifications token "$NOTIFICATIONS_JSON" $shown_id)
   assertEquals 3 $(echo "$notifications" | wc -l)
   assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
   assertEquals "$COMMIT2" "$(echo "$notifications" | head -n 2 | tail -n 1)"
@@ -113,7 +113,7 @@ test_show_missed_notifications_on_two_new_notifications() {
 
 test_show_missed_notifications_on_more_than_two_notifications() {
   local shown_id=0
-  local notifications=$(show_missed_notifications "$NOTIFICATIONS_JSON" $shown_id)
+  local notifications=$(show_missed_notifications token "$NOTIFICATIONS_JSON" $shown_id)
   assertEquals 4 $(echo "$notifications" | wc -l)
   assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
   assertEquals "$COMMIT2" "$(echo "$notifications" | head -n 2 | tail -n 1)"
