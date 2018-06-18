@@ -145,7 +145,7 @@ function main() {
     fi
 
     local updated_last_shown_commit_id
-    updated_last_shown_commit_id=$(show_missed_notifications "$notifications_json" $last_shown_commit_id)
+    updated_last_shown_commit_id=$(show_missed_notifications $access_token "$notifications_json" $last_shown_commit_id)
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
       echo $updated_last_shown_commit_id;
