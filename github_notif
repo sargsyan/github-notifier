@@ -6,6 +6,7 @@ readonly NOTIFICATIONS_PORTAL='https://github.com/notifications' #notification p
 readonly DIR_NAME=$(dirname $BASH_SOURCE)
 APPLICATION_DIR=`dirname $0`
 readonly LATEST_ID_FILE="$APPLICATION_DIR/.latest_id"
+KEEP_IN_SCREEN_TIME_IN_SECONDS=2
 
 . $DIR_NAME/lib/config_accessor.sh
 
@@ -30,6 +31,7 @@ function show_notification () {
     return 1
   fi
   local notification_details=$(echo "$notification_details_json" | $JQ '.user.login,.body,.html_url,.updated_at,.subject,.title')
+  #echo "$notification_details"; exit
 
   local details_user=$(echo $notification_details | cut -d'"' -f2)
   local details_body=$(echo $notification_details | cut -d'"' -f4)
@@ -59,10 +61,14 @@ function get_last_shown_commit_id() {
 function save_last_shown_commit_id() {
   local config_name=$1
   local value=$2
-  local line_number=$(grep -wn "$config_name" $LATEST_ID_FILE | cut -d: -f1)
-  if [[ -n "$line_number" ]]; then
-    sed -i .bak "${line_number}s/.*/$config_name $value/" $LATEST_ID_FILE &&
-    rm $LATEST_ID_FILE.bak
+  if [ -f $LATEST_ID_FILE ]; then
+    local line_number=$(grep -wn "$config_name" $LATEST_ID_FILE | cut -d: -f1)
+    if [[ -n "$line_number" ]]; then
+      sed -i .bak "${line_number}s/.*/$config_name $value/" $LATEST_ID_FILE &&
+      rm $LATEST_ID_FILE.bak
+    else
+      echo $config_name $value >> $LATEST_ID_FILE
+    fi
   else
     echo $config_name $value >> $LATEST_ID_FILE
   fi
@@ -107,6 +113,7 @@ function show_missed_notifications() {
 
   if [[ ${latest_commit_ids[0]} != null && $shown_id != ${latest_commit_ids[0]} ]]; then
     show_notification $access_token "$notifications_json" 0
+    sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
   else
     echo $shown_id
     return
@@ -114,6 +121,7 @@ function show_missed_notifications() {
 
   if [[ ${latest_commit_ids[1]} != null && $shown_id != ${latest_commit_ids[1]} ]]; then
     show_notification $access_token "$notifications_json" 1
+    sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
   else
     echo ${latest_commit_ids[0]}
     return
@@ -121,6 +129,7 @@ function show_missed_notifications() {
 
   if [[ ${latest_commit_ids[2]} != null && $shown_id != ${latest_commit_ids[2]} ]]; then
     show_all_notifications
+    sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
   fi
 
   echo ${latest_commit_ids[0]}

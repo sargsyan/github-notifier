@@ -50,6 +50,7 @@ oneTimeSetUp() {
   source temp_$APP > /dev/null
   rm temp_$APP
   readonly APPLICATION_DIR=.
+  KEEP_IN_SCREEN_TIME_IN_SECONDS=0
 }
 
 test_show_notification() {
