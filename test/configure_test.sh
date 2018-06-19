@@ -11,6 +11,13 @@ oneTimeTearDown() {
   rm .github_notif_conf 2> /dev/null
 }
 
+tearDown() {
+  $APP rm config_name
+  $APP rm config_name2
+  $APP rm config_name3
+  $APP rm config_name4
+}
+
 test_list_on_empty_configs() {
   assertEquals '' "$($APP list)"
 }
@@ -18,7 +25,6 @@ test_list_on_empty_configs() {
 test_list_on_one_item() {
   $APP add config_name token
   assertEquals 'config_name active' "$($APP list)"
-  $APP rm config_name
 }
 
 test_list_on_two_configs() {
@@ -27,8 +33,6 @@ test_list_on_two_configs() {
   assertEquals 2 $($APP list | wc -l )
   assertEquals 'config_name active' "$($APP list | head -n 1 )"
   assertEquals 'config_name2 active' "$($APP list | tail -n 1 )"
-  $APP rm config_name
-  $APP rm config_name2
 }
 
 test_get_active_configs_on_empty_configs() {
@@ -47,10 +51,6 @@ test_get_active_configs() {
   assertEquals 2 $(echo "$active_configs" | wc -l )
   assertEquals 'config_name' "$(echo "$active_configs" | head -n 1)"
   assertEquals 'config_name3' "$(echo "$active_configs" | tail -n 1)"
-  $APP rm config_name
-  $APP rm config_name2
-  $APP rm config_name3
-  $APP rm config_name4
 }
 
 test_remove_missing() {
@@ -70,7 +70,6 @@ test_add_with_missing_token() {
   $APP add config_name <<< token
   local actual_token=$(get_token config_name)
   assertEquals 'token' "$actual_token"
-  $APP rm config_name
 }
 
 test_add_with_empty_token() {
@@ -87,7 +86,6 @@ test_add_duplicate() {
   assertEquals 'Configuration config_name already exists' "$error"
   local actual_token=$(get_token config_name)
   assertEquals 'token' "$actual_token"
-  $APP rm config_name
 }
 
 test_remove_missing_config_arg() {
@@ -108,7 +106,6 @@ test_activate_and_deactive_config() {
   assertEquals 'config_name inactive' "$($APP list)"
   $APP activate config_name
   assertEquals 'config_name active' "$($APP list)"
-  $APP rm config_name
 }
 
 test_deactivate_config_one_from_many() {
@@ -118,8 +115,6 @@ test_deactivate_config_one_from_many() {
   assertEquals 2 $($APP list | wc -l)
   assertEquals 'config_name inactive' "$($APP list | head -n 1)"
   assertEquals 'config_name2 active' "$($APP list | tail -n 1)"
-  $APP rm config_name
-  $APP rm config_name2
 }
 
 test_activate_missing_config() {
@@ -137,7 +132,6 @@ test_token_update_on_active_token() {
   $APP token update config_name new_token
   local actual_token=$(get_token config_name)
   assertEquals 'new_token' "$actual_token"
-  $APP rm config_name
 }
 
 test_token_update_on_inactive_token() {
@@ -146,7 +140,6 @@ test_token_update_on_inactive_token() {
   $APP token update config_name new_token
   local actual_token=$(get_token config_name)
   assertEquals 'new_token' "$actual_token"
-  $APP rm config_name
 }
 
 test_token_update_missing_config_name() {
