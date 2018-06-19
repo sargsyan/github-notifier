@@ -36,7 +36,6 @@ EOF
 }
 
 function route_command() {
-  ensure_config_file_is_created
   local cmd=$1
   case $cmd in
     "list")

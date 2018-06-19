@@ -10,17 +10,20 @@ readonly STATUS_INACTIVE='inactive'
 . $LIB_DIR_NAME/macos/keychain_accessor.sh
 
 function config_exists() {
+  ensure_config_file_is_created
   local config_name=$1
   [ "$(get_config $config_name)" != '' ]
 }
 
 function get_config() {
+  ensure_config_file_is_created
   assert_is_set "Configuration name" $1
   local config_name=$1
   echo $(grep -w $config_name $CONFIG_FILE)
 }
 
 function add_config() {
+  ensure_config_file_is_created
   local config_name=$1
   local token=$2
   assert_is_set "Configuration name" $config_name
@@ -33,6 +36,7 @@ function add_config() {
 }
 
 function remove_config() {
+  ensure_config_file_is_created
   assert_is_set "Configuration name" $1
   local config_name=$1
   local line_number=$(grep -n "$config_name " $CONFIG_FILE| cut -f1 -d:)
@@ -94,13 +98,13 @@ function get_token() {
 }
 
 function list_configs() {
+  ensure_config_file_is_created
   cat $CONFIG_FILE
 }
 
 function get_active_configs() {
-  if [ -f $CONFIG_FILE ]; then
-    cat $CONFIG_FILE | grep ' active' | cut -d' ' -f1
-  fi
+  ensure_config_file_is_created
+  cat $CONFIG_FILE | grep ' active' | cut -d' ' -f1
 }
 
 function ensure_config_file_is_created() {
