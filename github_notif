@@ -1,8 +1,6 @@
 #!/bin/bash
 
 readonly JQ=jq
-readonly NOTIFICATIONS_URL='https://api.github.com/notifications' #notification api url
-readonly NOTIFICATIONS_PORTAL='https://github.com/notifications' #notification portal for humans
 readonly DIR_NAME=$(dirname $BASH_SOURCE)
 APPLICATION_DIR=`dirname $0`
 readonly LATEST_ID_FILE="$APPLICATION_DIR/.latest_id"
@@ -44,7 +42,8 @@ function show_notification () {
 }
 
 function show_all_notifications () {
-  terminal-notifier --group 1 -title "Missed notifications on Github" -subtitle "$(date)" -message "See all" -open $NOTIFICATIONS_PORTAL
+  config_url=$1
+  terminal-notifier --group 1 -title "Missed notifications on Github" -subtitle "$(date)" -message "See all" -open $config_url/notifications
 }
 
 function get_last_shown_commit_id() {
@@ -63,7 +62,7 @@ function save_last_shown_commit_id() {
   if [ -f $LATEST_ID_FILE ]; then
     local line_number=$(grep -wn "$config_name" $LATEST_ID_FILE | cut -d: -f1)
     if [[ -n "$line_number" ]]; then
-      sed -i .bak "${line_number}s/.*/$config_name $value/" $LATEST_ID_FILE &&
+      sed -i .bak "${line_number}s|.*|$config_name $value|" $LATEST_ID_FILE &&
       rm $LATEST_ID_FILE.bak
     else
       echo $config_name $value >> $LATEST_ID_FILE
@@ -104,9 +103,10 @@ function do_github_remote_call() {
 
 # current implementation have limit of 2
 function show_missed_notifications() {
-  local access_token=$1
-  local notifications_json=$2
-  local shown_id=$3
+  local config_url=$1
+  local access_token=$2
+  local notifications_json=$3
+  local shown_id=$4
 
   local latest_commit_ids=( $(echo "$notifications_json" | $JQ '.[0,1,2].id' | tr -d '"') );
 
@@ -127,7 +127,7 @@ function show_missed_notifications() {
   fi
 
   if [[ ${latest_commit_ids[2]} != null && $shown_id != ${latest_commit_ids[2]} ]]; then
-    show_all_notifications
+    show_all_notifications $config_url
     sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
   fi
 
@@ -145,7 +145,8 @@ function main() {
     local last_shown_commit_id=$(get_last_shown_commit_id $config_name)
     local notifications_json;
     access_token=$(get_token $config_name)
-    notifications_json=$(do_github_remote_call $NOTIFICATIONS_URL $access_token)
+    local notifications_api_url="${config_name/https:\/\//https://api.}"notifications
+    notifications_json=$(do_github_remote_call $notifications_api_url $access_token)
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
       echo $notifications_json;
@@ -153,7 +154,7 @@ function main() {
     fi
 
     local updated_last_shown_commit_id
-    updated_last_shown_commit_id=$(show_missed_notifications $access_token "$notifications_json" $last_shown_commit_id)
+    updated_last_shown_commit_id=$(show_missed_notifications $config_name $access_token "$notifications_json" $last_shown_commit_id)
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
       echo $updated_last_shown_commit_id;
