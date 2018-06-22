@@ -49,7 +49,7 @@ oneTimeSetUp() {
   (cat $APP | sed \$d ) > temp_$APP
   source temp_$APP > /dev/null
   rm temp_$APP
-  readonly APPLICATION_DIR=.
+  readonly APPLICATION_DIR=$SHUNIT_TMPDIR
   KEEP_IN_SCREEN_TIME_IN_SECONDS=0
 }
 

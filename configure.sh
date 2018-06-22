@@ -2,6 +2,7 @@
 
 readonly APP_NAME=$(basename $BASH_SOURCE)
 readonly DIR_NAME=$(dirname $BASH_SOURCE)
+[ -z $CONFIG_FILE_DIR ] && CONFIG_FILE_DIR=$DIR_NAME
 
 . $DIR_NAME/lib/config_accessor.sh
 

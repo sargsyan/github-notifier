@@ -1,8 +1,8 @@
 #!/bin/bash
 
-readonly LIB_DIR_NAME=$(dirname $BASH_SOURCE)
+LIB_DIR_NAME=$(dirname $BASH_SOURCE)
 readonly SERVICE_NAME='github_notif'
-readonly CONFIG_FILE=$DIR_NAME/.${SERVICE_NAME}_conf
+readonly CONFIG_FILE=$CONFIG_FILE_DIR/.${SERVICE_NAME}_conf
 
 readonly STATUS_ACTIVE='active'
 readonly STATUS_INACTIVE='inactive'

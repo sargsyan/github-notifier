@@ -3,12 +3,13 @@
 APP=./configure.sh
 
 oneTimeSetUp() {
-  rm .github_notif_conf 2> /dev/null
+  export CONFIG_FILE_DIR=$SHUNIT_TMPDIR
   source $APP > /dev/null
 }
 
 oneTimeTearDown() {
-  rm .github_notif_conf 2> /dev/null
+  rm $CONFIG_FILE_DIR/.github_notif_conf 2> /dev/null
+  unset CONFIG_FILE_DIR
 }
 
 tearDown() {
