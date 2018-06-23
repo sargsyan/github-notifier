@@ -1,0 +1,10 @@
+os: osx
+language: bash
+
+before_install:
+  - brew update
+  - brew install jq
+  - brew install shunit2
+
+script:
+  - make test
