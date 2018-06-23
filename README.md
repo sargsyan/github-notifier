@@ -1,5 +1,7 @@
 # github-notifier
 
+[![Build Status](https://travis-ci.org/sargsyan/github-notifier.svg?branch=master)](https://travis-ci.org/sargsyan/github-notifier)
+
 ## Prerequisites
 
 make sure that you have **jq** command installed. **jq** is needed to github API response parsing.
