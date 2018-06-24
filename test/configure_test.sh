@@ -13,10 +13,10 @@ oneTimeTearDown() {
 }
 
 tearDown() {
-  $APP rm config_name
-  $APP rm config_name2
-  $APP rm config_name3
-  $APP rm config_name4
+  $APP rm https://config_name.com
+  $APP rm https://config_name2.com
+  $APP rm https://config_name3.com
+  $APP rm https://config_name4.com
 }
 
 test_list_on_empty_configs() {
@@ -24,16 +24,16 @@ test_list_on_empty_configs() {
 }
 
 test_list_on_one_item() {
-  $APP add config_name token
-  assertEquals 'config_name active' "$($APP list)"
+  $APP add https://config_name.com token
+  assertEquals 'https://config_name.com active' "$($APP list)"
 }
 
 test_list_on_two_configs() {
-  $APP add config_name token
-  $APP add config_name2 token
+  $APP add https://config_name.com token
+  $APP add https://config_name2.com token
   assertEquals 2 $($APP list | wc -l )
-  assertEquals 'config_name active' "$($APP list | head -n 1 )"
-  assertEquals 'config_name2 active' "$($APP list | tail -n 1 )"
+  assertEquals 'https://config_name.com active' "$($APP list | head -n 1 )"
+  assertEquals 'https://config_name2.com active' "$($APP list | tail -n 1 )"
 }
 
 test_get_active_configs_on_empty_configs() {
@@ -42,16 +42,16 @@ test_get_active_configs_on_empty_configs() {
 }
 
 test_get_active_configs() {
-  $APP add config_name token
-  $APP add config_name2 token
-  $APP add config_name3 token
-  $APP add config_name4 token
-  $APP deactivate config_name2
-  $APP deactivate config_name4
+  $APP add https://config_name.com token
+  $APP add https://config_name2.com token
+  $APP add https://config_name3.com token
+  $APP add https://config_name4.com token
+  $APP deactivate https://config_name2.com
+  $APP deactivate https://config_name4.com
   local active_configs=$(get_active_configs)
   assertEquals 2 $(echo "$active_configs" | wc -l )
-  assertEquals 'config_name' "$(echo "$active_configs" | head -n 1)"
-  assertEquals 'config_name3' "$(echo "$active_configs" | tail -n 1)"
+  assertEquals 'https://config_name.com' "$(echo "$active_configs" | head -n 1)"
+  assertEquals 'https://config_name3.com' "$(echo "$active_configs" | tail -n 1)"
 }
 
 test_remove_missing() {
@@ -59,33 +59,47 @@ test_remove_missing() {
   assertEquals '' "$error"
 }
 
+test_add_valid_url() {
+  local error=$($APP add https://github.com token)
+  assertEquals '' "$error"
+  $APP rm https://github.com
+}
+
+test_add_invalid_url() {
+  local error_message='The url is not a valid. Valid example should be like https://github.com'
+  assertEquals "$error_message" "$($APP add wrong_url token)"
+  assertEquals "$error_message" "$($APP add http://github.com token)"
+  assertEquals "$error_message" "$($APP add https://github.com/ token)"
+  assertEquals "$error_message" "$($APP add https://github token)"
+}
+
 test_add_and_get_and_remove() {
-  $APP add config_name token
-  local actual_token=$(get_token config_name)
+  $APP add https://config_name.com token
+  local actual_token=$(get_token https://config_name.com)
   assertEquals 'token' "$actual_token"
-  local error=$($APP rm config_name)
+  local error=$($APP rm https://config_name.com)
   assertEquals '' "$error"
 }
 
 test_add_with_missing_token() {
-  $APP add config_name <<< token
-  local actual_token=$(get_token config_name)
+  $APP add https://config_name.com <<< token
+  local actual_token=$(get_token https://config_name.com)
   assertEquals 'token' "$actual_token"
 }
 
 test_add_with_empty_token() {
-  local error=$($APP add config_name <<< '')
+  local error=$($APP add https://config_name.com <<< '')
   assertEquals 'should be line break before error message' '' "$(echo "$error" | head -n 1)"
   assertEquals 'Refused to add the config. token cannot be empty' "$(echo "$error" | tail -n 1)"
-  local config=$($APP list) | grep config_name
+  local config=$($APP list) | grep https://config_name.com
   assertEquals 'config should not be added without token' '' "$config"
 }
 
 test_add_duplicate() {
-  $APP add config_name token
-  local error=$($APP add config_name token)
-  assertEquals 'Configuration config_name already exists' "$error"
-  local actual_token=$(get_token config_name)
+  $APP add https://config_name.com token
+  local error=$($APP add https://config_name.com token)
+  assertEquals 'Configuration https://config_name.com already exists' "$error"
+  local actual_token=$(get_token https://config_name.com)
   assertEquals 'token' "$actual_token"
 }
 
@@ -100,22 +114,22 @@ test_remove_missing_config() {
 }
 
 test_activate_and_deactive_config() {
-  $APP add config_name token
-  $APP activate config_name
-  assertEquals 'config_name active' "$($APP list)"
-  $APP deactivate config_name
-  assertEquals 'config_name inactive' "$($APP list)"
-  $APP activate config_name
-  assertEquals 'config_name active' "$($APP list)"
+  $APP add https://config_name.com token
+  $APP activate https://config_name.com
+  assertEquals 'https://config_name.com active' "$($APP list)"
+  $APP deactivate https://config_name.com
+  assertEquals 'https://config_name.com inactive' "$($APP list)"
+  $APP activate https://config_name.com
+  assertEquals 'https://config_name.com active' "$($APP list)"
 }
 
 test_deactivate_config_one_from_many() {
-  $APP add config_name token
-  $APP add config_name2 token
-  $APP deactivate config_name
+  $APP add https://config_name.com token
+  $APP add https://config_name2.com token
+  $APP deactivate https://config_name.com
   assertEquals 2 $($APP list | wc -l)
-  assertEquals 'config_name inactive' "$($APP list | head -n 1)"
-  assertEquals 'config_name2 active' "$($APP list | tail -n 1)"
+  assertEquals 'https://config_name.com inactive' "$($APP list | head -n 1)"
+  assertEquals 'https://config_name2.com active' "$($APP list | tail -n 1)"
 }
 
 test_activate_missing_config() {
@@ -129,17 +143,17 @@ test_deactivate_missing_config() {
 }
 
 test_token_update_on_active_token() {
-  $APP add config_name token
-  $APP token update config_name new_token
-  local actual_token=$(get_token config_name)
+  $APP add https://config_name.com token
+  $APP token update https://config_name.com new_token
+  local actual_token=$(get_token https://config_name.com)
   assertEquals 'new_token' "$actual_token"
 }
 
 test_token_update_on_inactive_token() {
-  $APP add config_name token
-  $APP deactivate config_name
-  $APP token update config_name new_token
-  local actual_token=$(get_token config_name)
+  $APP add https://config_name.com token
+  $APP deactivate https://config_name.com
+  $APP token update https://config_name.com new_token
+  local actual_token=$(get_token https://config_name.com)
   assertEquals 'new_token' "$actual_token"
 }
 

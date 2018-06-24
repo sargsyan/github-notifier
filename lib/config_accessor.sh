@@ -27,6 +27,7 @@ function add_config() {
   local config_name=$1
   local token=$2
   assert_is_set "Configuration name" $config_name
+  assert_is_valid_url $config_name
   if config_exists $config_name; then
     show_error "Configuration $config_name already exists"
     return
@@ -72,7 +73,7 @@ function update_config() {
   local config_name=$1
   local activity_status=$2
   local line_number=$(grep -wn "$config_name" $CONFIG_FILE | cut -d: -f1)
-  sed -i .bak "${line_number}s/.*/$config_name $activity_status/" $CONFIG_FILE &&
+  sed -i .bak "${line_number}s|.*|$config_name $activity_status|" $CONFIG_FILE &&
   rm $CONFIG_FILE.bak
 }
 
@@ -118,6 +119,14 @@ function assert_is_set() {
   local arg=$2
   if [[ ! $arg ]]; then
     show_error "$arg_description is not provided" && exit
+  fi
+}
+
+function assert_is_valid_url() {
+  local url=$1
+  if [[ $(echo $url | grep -cE 'https://([-A-Za-z0-9\+&@#_]*\.)+[-A-Za-z0-9]+$') -eq 0 ]]; then
+      echo "The url is not a valid. Valid example should be like https://github.com"
+      exit
   fi
 }
 
