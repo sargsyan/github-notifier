@@ -8,6 +8,7 @@ readonly STATUS_ACTIVE='active'
 readonly STATUS_INACTIVE='inactive'
 
 . $LIB_DIR_NAME/macos/keychain_accessor.sh
+. $LIB_DIR_NAME/url.sh
 
 function config_exists() {
   ensure_config_file_is_created
@@ -27,7 +28,7 @@ function add_config() {
   local config_name=$1
   local token=$2
   assert_is_set "Configuration name" $config_name
-  assert_is_valid_url $config_name
+  assert_is_valid_github_or_ghe_base_url $config_name
   if config_exists $config_name; then
     show_error "Configuration $config_name already exists"
     return
@@ -119,14 +120,6 @@ function assert_is_set() {
   local arg=$2
   if [[ ! $arg ]]; then
     show_error "$arg_description is not provided" && exit
-  fi
-}
-
-function assert_is_valid_url() {
-  local url=$1
-  if [[ $(echo $url | grep -cE 'https://([-A-Za-z0-9\+&@#_]*\.)+[-A-Za-z0-9]+$') -eq 0 ]]; then
-      echo "The url is not a valid. Valid example should be like https://github.com"
-      exit
   fi
 }
 

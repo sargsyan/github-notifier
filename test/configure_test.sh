@@ -59,20 +59,6 @@ test_remove_missing() {
   assertEquals '' "$error"
 }
 
-test_add_valid_url() {
-  local error=$($APP add https://github.com token)
-  assertEquals '' "$error"
-  $APP rm https://github.com
-}
-
-test_add_invalid_url() {
-  local error_message='The url is not a valid. Valid example should be like https://github.com'
-  assertEquals "$error_message" "$($APP add wrong_url token)"
-  assertEquals "$error_message" "$($APP add http://github.com token)"
-  assertEquals "$error_message" "$($APP add https://github.com/ token)"
-  assertEquals "$error_message" "$($APP add https://github token)"
-}
-
 test_add_and_get_and_remove() {
   $APP add https://config_name.com token
   local actual_token=$(get_token https://config_name.com)
