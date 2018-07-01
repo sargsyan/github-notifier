@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-make sure that you have **jq** command installed. **jq** is needed to github API response parsing.
+Make sure that you have **jq** command installed. **jq** is needed to github API response parsing.
 
 ## Installation
 
@@ -34,7 +34,7 @@ Generally you will need to have one or two configurations. You can list, create,
 
 # Testing
 
-if something is not working in your system and you are sure that configurations are correct you can run unit tests for your system to see if system behaves correctly. For this you need to install test framework shell scripts and run unit tests locally
+If something is not working in your system and you are sure that configurations are correct you can run unit tests for your system to see if system behaves correctly. For this you need to install test framework shell scripts and run unit tests locally
 
 ```sh
 brew install shunit2
@@ -43,8 +43,10 @@ make test
 
 # Troubleshooting
 
-to check the daemon logs for the error use
+To check the daemon logs for the error use
 
 ```sh
 tail -f /var/log/system.log
 ```
+
+if the system logs tell that the application keeps exiting with non-zero exit codes, you can check the application log files located in the application folder and named **service.log**
