@@ -3,6 +3,7 @@
 readonly APPLICATION_DIR_ABSOLUTE_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
 readonly GITHUB_NOTIF=github_notif
 readonly INVOCATION_INTERVAL_IN_SECONDS=60
+readonly LOGFILE_PATH=$APPLICATION_DIR_ABSOLUTE_PATH/service.log
 
 function get_plist_body() {
 cat <<- EOF
@@ -18,6 +19,10 @@ cat <<- EOF
     </array>
     <key>StartInterval</key>
     <integer>$INVOCATION_INTERVAL_IN_SECONDS</integer>
+    <key>StandardOutPath</key>
+    <string>$LOGFILE_PATH</string>
+    <key>StandardErrorPath</key>
+    <string>$LOGFILE_PATH</string>
 </dict>
 </plist>
 EOF
@@ -25,6 +30,7 @@ EOF
 
 function main() {
   brew ls --versions terminal-notifier > /dev/null || brew install terminal-notifier
+  touch $LOGFILE_PATH
   echo "$(get_plist_body)" > org.github-notif.get.plist
   sudo cp org.github-notif.get.plist /Library/LaunchDaemons/
   rm org.github-notif.get.plist
