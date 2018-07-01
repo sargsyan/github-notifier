@@ -1,9 +1,12 @@
 #!/bin/bash
 
 readonly APPLICATION_DIR_ABSOLUTE_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
-readonly GITHUB_NOTIF=github_notif
+readonly GITHUB_NOTIF_APP=github_notif
+readonly CONFIGURE_APP=configure.sh
 readonly INVOCATION_INTERVAL_IN_SECONDS=60
 readonly LOGFILE_PATH=$APPLICATION_DIR_ABSOLUTE_PATH/service.log
+
+. $APPLICATION_DIR_ABSOLUTE_PATH/lib/prompter.sh
 
 function get_plist_body() {
 cat <<- EOF
@@ -15,7 +18,7 @@ cat <<- EOF
     <string>org.github-notif.get.list</string>
     <key>ProgramArguments</key>
     <array>
-        <string>$APPLICATION_DIR_ABSOLUTE_PATH/$GITHUB_NOTIF</string>
+        <string>$APPLICATION_DIR_ABSOLUTE_PATH/$GITHUB_NOTIF_APP</string>
     </array>
     <key>StartInterval</key>
     <integer>$INVOCATION_INTERVAL_IN_SECONDS</integer>
@@ -35,6 +38,11 @@ function main() {
   sudo cp org.github-notif.get.plist /Library/LaunchDaemons/
   rm org.github-notif.get.plist
   launchctl load -w /Library/LaunchDaemons/org.github-notif.get.plist
+  local command="$APPLICATION_DIR_ABSOLUTE_PATH/$CONFIGURE_APP add https://github.com"
+  prompt_for_action "$command" "Do you want to setup https://github.com notifications now"
+  if [[ $? -ne 0 ]]; then
+    echo "You can add an instance later with '$command' command"
+  fi
 }
 
 main
