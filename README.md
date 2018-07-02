@@ -1,6 +1,6 @@
 # github-notifier
 
-[![Build Status](https://travis-ci.org/sargsyan/github-notifier.svg?branch=master)](https://travis-ci.org/sargsyan/github-notifier)
+[![Build Status](https://travis-ci.org/sargsyan/github-notifier.svg?branch=master)](https://travis-ci.org/sargsyan/github-notifier) [![codecov](https://codecov.io/gh/sargsyan/github-notifier/branch/master/graph/badge.svg)](https://codecov.io/gh/sargsyan/github-notifier)
 
 ## Prerequisites
 
