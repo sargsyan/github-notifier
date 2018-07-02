@@ -46,9 +46,7 @@ readonly MORE_THAN_ONE_MISSED_COMMITS_PATTERN="--group 1 -title Missed notificat
 readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
 
 oneTimeSetUp() {
-  (cat $APP | sed \$d ) > temp_$APP
-  source temp_$APP > /dev/null
-  rm temp_$APP
+  source $APP > /dev/null
   readonly APPLICATION_DIR=$SHUNIT_TMPDIR
   KEEP_IN_SCREEN_TIME_IN_SECONDS=0
 }
