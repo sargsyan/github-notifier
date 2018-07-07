@@ -3,6 +3,8 @@
 APP=github_notif
 readonly CURRENT_DIR=`dirname $1`
 
+. $CURRENT_DIR/lib/mock.sh
+
 function mock_request() {
   local url=$1
   if [ "$url" == "https://api.github.com/notifications" ]; then
@@ -16,6 +18,10 @@ function mock_request() {
   elif [ "$url" == "https://github.com/notifications" ]; then
     cat $CURRENT_DIR/data/list_of_notifications.json
   fi
+}
+
+function mock_terminal_notifier() {
+  mock terminal_notifier "$@"
 }
 
 function mock_failing_remote_call() {
@@ -35,7 +41,7 @@ function mock_show_missed_notifications() {
   echo "new_commit_id"
 }
 
-alias terminal-notifier=echo
+alias terminal-notifier=mock_terminal_notifier
 alias do_github_remote_call=mock_request
 
 readonly COMMIT1=$(construct_notification "The first commit")
@@ -52,13 +58,15 @@ oneTimeSetUp() {
 }
 
 test_show_notification() {
-  local mock_call_arg_list=$(show_notification token "$NOTIFICATIONS_JSON" 0)
-  assertEquals "$COMMIT1" "$mock_call_arg_list"
+  show_notification token "$NOTIFICATIONS_JSON" 0
+  verify_with_all_args terminal_notifier "$COMMIT1"
+  finish_mock_assertions
 }
 
 test_show_all_notifications() {
-  local mock_call_arg_list=$(show_all_notifications https://github.com)
-  assertTrue 'actual value does not satisfy the pattern' '[[ "$mock_call_arg_list" =~ $MORE_THAN_ONE_MISSED_COMMITS_PATTERN ]]'
+  show_all_notifications https://github.com
+  verify_with_arg_pattern terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS_PATTERN
+  finish_mock_assertions
 }
 
 test_show_missed_notifications_when_no_notification() {
@@ -70,54 +78,54 @@ test_show_missed_notifications_when_no_notification() {
 test_show_missed_notifications_on_total_one_notification() {
   local shown_id=5
   local one_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
-  local notifications=$(show_missed_notifications https://github.com token "[$one_notification]" $shown_id)
-  assertEquals 2 $(echo "$notifications" | wc -l)
-  assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
-  assertEquals "3" "$(echo "$notifications" | tail -n 1 )"
+  show_missed_notifications https://github.com token "[$one_notification]" $shown_id > $SHUNIT_TMPDIR/last_shown_id
+  assertEquals "3" $(cat $SHUNIT_TMPDIR/last_shown_id)
+  verify_with_all_args terminal_notifier "$COMMIT1"
+  finish_mock_assertions
 }
 
 test_show_missed_notifications_on_total_two_notifications() {
   local shown_id=5
   local first_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
   local second_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[1])
-  local notifications=$(show_missed_notifications https://github.com token "[$first_notification, $second_notification]" $shown_id)
-  assertEquals 3 $(echo "$notifications" | wc -l)
-  assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
-  assertEquals "$COMMIT2" "$(echo "$notifications" | head -n 2 | tail -n 1)"
-  assertEquals "3" "$(echo "$notifications" | tail -n 1 )"
+  show_missed_notifications https://github.com token "[$first_notification, $second_notification]" $shown_id > $SHUNIT_TMPDIR/last_shown_id
+  assertEquals "3" $(cat $SHUNIT_TMPDIR/last_shown_id)
+  verify_with_all_args terminal_notifier "$COMMIT1"
+  verify_with_all_args terminal_notifier "$COMMIT2"
+  finish_mock_assertions
 }
 
 test_show_missed_notifications_when_no_new_notification() {
   local shown_id=3
-  local result=$(show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id)
-  assertEquals "3" "$result"
+  local last_shown_id=$(show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id)
+  assertEquals "3" "$last_shown_id"
 }
 
 test_show_missed_notifications_on_one_new_notification() {
   local shown_id=2
-  local notifications=$(show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id)
-  assertEquals 2 $(echo "$notifications" | wc -l)
-  assertEquals "$COMMIT1" "$(echo "$notifications"  | head -n 1)"
-  assertEquals "3" "$(echo "$notifications" | tail -n 1 )"
+  show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id > $SHUNIT_TMPDIR/last_shown_id
+  assertEquals "3" $(cat $SHUNIT_TMPDIR/last_shown_id)
+  verify_with_all_args terminal_notifier "$COMMIT1"
+  finish_mock_assertions
 }
 
 test_show_missed_notifications_on_two_new_notifications() {
   local shown_id=1
-  local notifications=$(show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id)
-  assertEquals 3 $(echo "$notifications" | wc -l)
-  assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
-  assertEquals "$COMMIT2" "$(echo "$notifications" | head -n 2 | tail -n 1)"
-  assertEquals "3" "$(echo "$notifications" | tail -n 1 )"
+  show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id > $SHUNIT_TMPDIR/last_shown_id
+  assertEquals "3" $(cat $SHUNIT_TMPDIR/last_shown_id)
+  verify_with_all_args terminal_notifier "$COMMIT1"
+  verify_with_all_args terminal_notifier "$COMMIT2"
+  finish_mock_assertions
 }
 
 test_show_missed_notifications_on_more_than_two_notifications() {
   local shown_id=0
-  local notifications=$(show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id)
-  assertEquals 4 $(echo "$notifications" | wc -l)
-  assertEquals "$COMMIT1" "$(echo "$notifications" | head -n 1)"
-  assertEquals "$COMMIT2" "$(echo "$notifications" | head -n 2 | tail -n 1)"
-  assertTrue 'actual value does not satisfy the pattern' '[[ "$(echo "$notifications" | head -n 3 | tail -n 1)" =~ $MORE_THAN_ONE_MISSED_COMMITS_PATTERN ]]'
-  assertEquals "3" $(echo "$notifications" | tail -n 1)
+  show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id > $SHUNIT_TMPDIR/last_shown_id
+  assertEquals "3" $(cat $SHUNIT_TMPDIR/last_shown_id)
+  verify_with_all_args terminal_notifier "$COMMIT1"
+  verify_with_all_args terminal_notifier "$COMMIT2"
+  verify_with_arg_pattern terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS_PATTERN
+  finish_mock_assertions
 }
 
 test_show_notifications_on_missing_active_configs() {
