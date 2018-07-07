@@ -147,6 +147,6 @@ test_show_notifications_on_multiple_active_config_when_connections_fails() {
   alias do_github_remote_call=mock_failing_remote_call
   alias get_active_configs="echo config1 config2"
   local error=$(main)
-  assertEquals 'Failed to connect to url' "$(echo "$error" | head -n 1)"
-  assertEquals 'Failed to connect to url' "$(echo "$error" | tail -n 1)"
+  assertTrue 'The error log is wrong' '[[ "$(echo "$error" | head -n 1)" == *"Failed to connect to url" ]]'
+  assertTrue 'The error log is wrong' '[[ "$(echo "$error" | tail -n 1)" == *"Failed to connect to url" ]]'
 }

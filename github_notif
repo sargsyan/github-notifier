@@ -9,6 +9,7 @@ CONFIG_FILE_DIR=$APPLICATION_DIR
 PATH=$PATH:/usr/local/bin
 
 . $DIR_NAME/lib/config_accessor.sh
+. $DIR_NAME/lib/logger.sh
 
 function show_notification () {
   local access_token=$1
@@ -151,7 +152,7 @@ function main() {
     notifications_json=$(do_github_remote_call $notifications_api_url $access_token)
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
-      echo $notifications_json;
+      log_error $notifications_json;
       continue
     fi
 
@@ -159,7 +160,7 @@ function main() {
     updated_last_shown_commit_id=$(show_missed_notifications $config_name $access_token "$notifications_json" $last_shown_commit_id)
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
-      echo $updated_last_shown_commit_id;
+      log_error $updated_last_shown_commit_id;
       return 1
     fi
     save_last_shown_commit_id $config_name $updated_last_shown_commit_id
