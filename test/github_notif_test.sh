@@ -41,17 +41,17 @@ function mock_show_missed_notifications() {
   echo "new_commit_id"
 }
 
-alias terminal-notifier=mock_terminal_notifier
-alias do_github_remote_call=mock_request
-
-readonly COMMIT1=$(construct_notification "The first commit")
-readonly COMMIT2=$(construct_notification "The second commit")
-#Todo: handle dates
-readonly MORE_THAN_ONE_MISSED_COMMITS_PATTERN="--group 1 -title Missed notifications on Github -subtitle ".*"\
--message See all -open https://github.com/notifications"
-readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
-
 oneTimeSetUp() {
+  alias terminal-notifier=mock_terminal_notifier
+  alias do_github_remote_call=mock_request
+
+  readonly COMMIT1=$(construct_notification "The first commit")
+  readonly COMMIT2=$(construct_notification "The second commit")
+  #Todo: handle dates
+  readonly MORE_THAN_ONE_MISSED_COMMITS_PATTERN="--group 1 -title Missed notifications on Github -subtitle
+  .*-message See all -open https://github.com/notifications"
+  readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
+
   source $APP > /dev/null
   readonly APPLICATION_DIR=$SHUNIT_TMPDIR
   KEEP_IN_SCREEN_TIME_IN_SECONDS=0
