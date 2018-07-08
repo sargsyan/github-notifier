@@ -42,12 +42,14 @@ function show_notification () {
 
   [[ $details_body != "" ]] && body="$details_body" || body="$details_title"
 
-  terminal-notifier --group 1 -title "${details_user//\"}" on ${repo//\"}" -subtitle "${title//\"}"" -message "${body//\"}" -open ${details_html_url//\"}
+  terminal-notifier --group 1 -title "${details_user//\"}" on ${repo//\"}" -subtitle "${title//\"}"" \
+   -message "${body//\"}" -open ${details_html_url//\"} -appIcon $DIR_NAME/logo.png
 }
 
 function show_all_notifications () {
   config_url=$1
-  terminal-notifier --group 1 -title "Missed notifications on $(get_resource_name $config_url)" -subtitle "$(date)" -message "See all" -open $config_url/notifications
+  terminal-notifier --group 1 -title "Missed notifications on $(get_resource_name $config_url)" \
+  -subtitle "$(date)" -message "See all" -open $config_url/notifications -appIcon $DIR_NAME/logo.png
 }
 
 function get_last_shown_commit_id() {

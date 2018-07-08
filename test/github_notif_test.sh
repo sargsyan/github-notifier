@@ -44,7 +44,7 @@ function construct_notification() {
   local user=pengwynn
   local project="Hello-World"
   local commit_url=https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180
-  echo "--group 1 -title $user on $project -subtitle Greetings -message $commit_comment -open $commit_url"
+  echo "--group 1 -title $user on $project -subtitle Greetings -message $commit_comment -open $commit_url -appIcon $DIR_NAME/logo.png"
 }
 
 function mock_show_missed_notifications() {
@@ -55,16 +55,16 @@ oneTimeSetUp() {
   alias terminal-notifier=mock_terminal_notifier
   alias do_github_remote_call=mock_request
 
+  source $APP > /dev/null
+  readonly APPLICATION_DIR=$SHUNIT_TMPDIR
+  KEEP_IN_SCREEN_TIME_IN_SECONDS=0
+
   readonly COMMIT1=$(construct_notification "The first commit")
   readonly COMMIT2=$(construct_notification "The second commit")
   #Todo: handle dates
   readonly MORE_THAN_ONE_MISSED_COMMITS_PATTERN="--group 1 -title Missed notifications on github.com -subtitle
-  .*-message See all -open https://github.com/notifications"
+  .*-message See all -open https://github.com/notifications -appIcon $DIR_NAME/logo.png"
   readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
-
-  source $APP > /dev/null
-  readonly APPLICATION_DIR=$SHUNIT_TMPDIR
-  KEEP_IN_SCREEN_TIME_IN_SECONDS=0
 }
 
 test_show_notification() {
