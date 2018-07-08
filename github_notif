@@ -152,10 +152,11 @@ function show_missed_notifications() {
 }
 
 function main() {
+  exit_code=0
   local active_configs=$(get_active_configs)
   if [ -z "$active_configs" ]; then
      echo "There is no any active configuration to get notifications"
-     return
+     return 1
   fi
 
   for config_name in $active_configs ; do
@@ -167,6 +168,7 @@ function main() {
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
       log_error $notifications_json
+      exit_code=1
       continue
     fi
 
@@ -175,9 +177,11 @@ function main() {
     local call_result=$?
     save_last_shown_commit_id $config_name $updated_last_shown_commit_id
     if [[ $call_result -eq 0 ]]; then
-      return 1
+      exit_code=1
     fi
   done
+
+  return $exit_code
 }
 
 main
