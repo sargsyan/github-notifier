@@ -60,13 +60,11 @@ oneTimeSetUp() {
 test_show_notification() {
   show_notification token "$NOTIFICATIONS_JSON" 0
   verify_with_all_args terminal_notifier "$COMMIT1"
-  finish_mock_assertions
 }
 
 test_show_all_notifications() {
   show_all_notifications https://github.com
   verify_with_arg_pattern terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS_PATTERN
-  finish_mock_assertions
 }
 
 test_show_missed_notifications_when_no_notification() {
@@ -81,7 +79,6 @@ test_show_missed_notifications_on_total_one_notification() {
   show_missed_notifications https://github.com token "[$one_notification]" $shown_id > $SHUNIT_TMPDIR/last_shown_id
   assertEquals "3" $(cat $SHUNIT_TMPDIR/last_shown_id)
   verify_with_all_args terminal_notifier "$COMMIT1"
-  finish_mock_assertions
 }
 
 test_show_missed_notifications_on_total_two_notifications() {
@@ -92,7 +89,6 @@ test_show_missed_notifications_on_total_two_notifications() {
   assertEquals "3" $(cat $SHUNIT_TMPDIR/last_shown_id)
   verify_with_all_args terminal_notifier "$COMMIT1"
   verify_with_all_args terminal_notifier "$COMMIT2"
-  finish_mock_assertions
 }
 
 test_show_missed_notifications_when_no_new_notification() {
@@ -106,7 +102,6 @@ test_show_missed_notifications_on_one_new_notification() {
   show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id > $SHUNIT_TMPDIR/last_shown_id
   assertEquals "3" $(cat $SHUNIT_TMPDIR/last_shown_id)
   verify_with_all_args terminal_notifier "$COMMIT1"
-  finish_mock_assertions
 }
 
 test_show_missed_notifications_on_two_new_notifications() {
@@ -115,7 +110,6 @@ test_show_missed_notifications_on_two_new_notifications() {
   assertEquals "3" $(cat $SHUNIT_TMPDIR/last_shown_id)
   verify_with_all_args terminal_notifier "$COMMIT1"
   verify_with_all_args terminal_notifier "$COMMIT2"
-  finish_mock_assertions
 }
 
 test_show_missed_notifications_on_more_than_two_notifications() {
@@ -125,7 +119,6 @@ test_show_missed_notifications_on_more_than_two_notifications() {
   verify_with_all_args terminal_notifier "$COMMIT1"
   verify_with_all_args terminal_notifier "$COMMIT2"
   verify_with_arg_pattern terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS_PATTERN
-  finish_mock_assertions
 }
 
 test_show_notifications_on_missing_active_configs() {
