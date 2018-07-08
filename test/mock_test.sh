@@ -7,6 +7,13 @@ test_mock_verify_successful_case() {
   assertEquals '' "$(verify_with_all_args command arg1 arg2)"
 }
 
+test_mock_verify_multiple_calls() {
+  mock command arg1 arg2
+  mock command arg3
+  assertEquals '' "$(verify_with_all_args command arg1 arg2)"
+  assertEquals '' "$(verify_with_all_args command arg3)"
+}
+
 test_mock_verify_different_command_with_same_arguments() {
   mock command arg1 arg2
   local error="Expected 'commands' but 'command' was called"

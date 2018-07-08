@@ -1,12 +1,20 @@
 #!/bin/bash
 
 function mock() {
-  unset expected_num_calls
   mock_name=$1
   arg_list="${@:2}"
-  local curr_actual_num_calls=$(($actual_num_calls))
-  export $mock_name$curr_actual_num_calls="$arg_list"
-  export actual_num_calls=$(($actual_num_calls+1))
+  local invocations_file=$SHUNIT_TMPDIR/$mock_name
+  if [ -e $invocations_file ]; then
+    source $invocations_file
+  fi
+
+  for((i=0;; i++)); do
+    expected_mock_name="$mock_name$i"
+    [ -z "${!expected_mock_name}" ] && break
+  done
+
+  echo $mock_name$i="'$arg_list'" >> $invocations_file
+  actual_num_calls=$(($actual_num_calls+1))
 }
 
 function verify_with_all_args() {
@@ -19,15 +27,21 @@ function verify_with_arg_pattern() {
   __verify_with_assertion __verify_with_arg_pattern $args
 }
 
-function finish_mock_assertions() {
-  unset actual_num_calls
-}
-
 function __verify_with_assertion() {
-  local curr_expected_num_calls=$(($expected_num_calls))
-  expected_mock_name="${2}${curr_expected_num_calls}"
-  actual_mock_name="${mock_name}${curr_expected_num_calls}"
-  export expected_num_calls=$(($expected_num_calls+1))
+  local invocations_file=$SHUNIT_TMPDIR/$mock_name
+  if [ -e $invocations_file ]; then
+    source $invocations_file
+  fi
+
+  local invocation_count_file=$SHUNIT_TMPDIR/${mock_name}_times
+  local expected_num_calls=0
+  if [ -f $invocation_count_file ]; then
+    expected_num_calls=$(cat $invocation_count_file)
+  fi
+  echo $((expected_num_calls+1)) > $invocation_count_file
+
+  expected_mock_name="${2}${expected_num_calls}"
+  actual_mock_name="${mock_name}${expected_num_calls}"
   if [[ "$expected_mock_name" != "$actual_mock_name" ]]; then
     fail "Expected '$2' but '$mock_name' was called"
     return
