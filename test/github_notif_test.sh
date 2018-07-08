@@ -29,6 +29,16 @@ function mock_failing_remote_call() {
   return 1
 }
 
+function mock_failing_notification_details_call() {
+  local url=$1
+  if [ "$url" == "https://api.github.com/repos/octokit/octokit.rb/issues/comments/123" ]; then
+    echo Failed to connect to https://api.github.com/repos/octokit/octokit.rb/issues/comments/123
+    return 1
+  else
+    mock_request $url
+  fi
+}
+
 function construct_notification() {
   local commit_comment=$1
   local user=pengwynn
@@ -117,6 +127,15 @@ test_show_missed_notifications_on_more_than_two_notifications() {
   show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id > $SHUNIT_TMPDIR/last_shown_id
   assertEquals "3" $(cat $SHUNIT_TMPDIR/last_shown_id)
   verify_with_all_args terminal_notifier "$COMMIT1"
+  verify_with_all_args terminal_notifier "$COMMIT2"
+  verify_with_arg_pattern terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS_PATTERN
+}
+
+test_show_missed_notifications_on_failing_notification_details_call() {
+  alias do_github_remote_call=mock_failing_notification_details_call
+  local shown_id=0
+  show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id > $SHUNIT_TMPDIR/last_shown_id
+  assertEquals 1 $?
   verify_with_all_args terminal_notifier "$COMMIT2"
   verify_with_arg_pattern terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS_PATTERN
 }

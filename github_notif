@@ -24,11 +24,11 @@ function show_notification () {
   # sometimes latest_comment_url="null", for example when PR title is set
   [[ $latest_comment_url == "null" ]] && notification_details_url="$general_url" || notification_details_url="$latest_comment_url"
 
-  local notification_details_json;
+  local notification_details_json
   notification_details_json=$(do_github_remote_call $notification_details_url $access_token)
   local call_result=$?
   if [[ $call_result -ne 0 ]]; then
-    echo $notification_details_json;
+    echo $notification_details_json
     return 1
   fi
   local notification_details=$(echo "$notification_details_json" | $JQ '.user.login,.body,.html_url,.updated_at,.subject,.title')
@@ -78,11 +78,11 @@ function save_last_shown_commit_id() {
 function do_github_remote_call() {
   local url=$1
   local access_token=$2
-  local response;
+  local response
   response=$(curl -w "%{http_code}" $url -H "Authorization: token $access_token" 2>/dev/null)
   local call_result=$?
   if [[ $call_result -ne 0 ]]; then
-    echo "Failed to connect to $url";
+    echo "Failed to connect to $url"
     return 1
   fi
 
@@ -111,22 +111,34 @@ function show_missed_notifications() {
   local notifications_json=$3
   local shown_id=$4
 
-  local latest_commit_ids=( $(echo "$notifications_json" | $JQ '.[0,1,2].id' | tr -d '"') );
+  local latest_commit_ids=( $(echo "$notifications_json" | $JQ '.[0,1,2].id' | tr -d '"') )
 
   if [[ ${latest_commit_ids[0]} != null && $shown_id != ${latest_commit_ids[0]} ]]; then
-    show_notification $access_token "$notifications_json" 0
-    sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
+    error_message=$(show_notification $access_token "$notifications_json" 0)
+    local call_result=$?
+    if [[ $call_result -ne 0 ]]; then
+      log_error "An error occured while showing notification. $error_message"
+      exit_code=1
+    else
+      sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
+    fi
   else
     echo $shown_id
-    return
+    return $exit_code
   fi
 
   if [[ ${latest_commit_ids[1]} != null && $shown_id != ${latest_commit_ids[1]} ]]; then
-    show_notification $access_token "$notifications_json" 1
-    sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
+    error_message=$(show_notification $access_token "$notifications_json" 1)
+    local call_result=$?
+    if [[ $call_result -ne 0 ]]; then
+      log_error "An error occured while showing notification. $error_message"
+      exit_code=1
+    else
+      sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
+    fi
   else
     echo ${latest_commit_ids[0]}
-    return
+    return $exit_code
   fi
 
   if [[ ${latest_commit_ids[2]} != null && $shown_id != ${latest_commit_ids[2]} ]]; then
@@ -135,35 +147,35 @@ function show_missed_notifications() {
   fi
 
   echo ${latest_commit_ids[0]}
+  return $exit_code
 }
 
 function main() {
   local active_configs=$(get_active_configs)
   if [ -z "$active_configs" ]; then
-     echo "There is no any active configuration to get notifications";
+     echo "There is no any active configuration to get notifications"
      return
   fi
 
   for config_name in $active_configs ; do
     local last_shown_commit_id=$(get_last_shown_commit_id $config_name)
-    local notifications_json;
+    local notifications_json
     access_token=$(get_token $config_name)
     local notifications_api_url="${config_name/https:\/\//https://api.}"/notifications
     notifications_json=$(do_github_remote_call $notifications_api_url $access_token)
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
-      log_error $notifications_json;
+      log_error $notifications_json
       continue
     fi
 
     local updated_last_shown_commit_id
     updated_last_shown_commit_id=$(show_missed_notifications $config_name $access_token "$notifications_json" $last_shown_commit_id)
     local call_result=$?
-    if [[ $call_result -ne 0 ]]; then
-      log_error $updated_last_shown_commit_id;
+    save_last_shown_commit_id $config_name $updated_last_shown_commit_id
+    if [[ $call_result -eq 0 ]]; then
       return 1
     fi
-    save_last_shown_commit_id $config_name $updated_last_shown_commit_id
   done
 }
 
