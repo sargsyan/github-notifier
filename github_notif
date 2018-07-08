@@ -10,6 +10,7 @@ PATH=$PATH:/usr/local/bin
 
 . $DIR_NAME/lib/config_accessor.sh
 . $DIR_NAME/lib/logger.sh
+. $DIR_NAME/lib/url.sh
 
 function show_notification () {
   local access_token=$1
@@ -46,7 +47,7 @@ function show_notification () {
 
 function show_all_notifications () {
   config_url=$1
-  terminal-notifier --group 1 -title "Missed notifications on Github" -subtitle "$(date)" -message "See all" -open $config_url/notifications
+  terminal-notifier --group 1 -title "Missed notifications on $(get_resource_name $config_url)" -subtitle "$(date)" -message "See all" -open $config_url/notifications
 }
 
 function get_last_shown_commit_id() {

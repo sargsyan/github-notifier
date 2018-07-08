@@ -58,7 +58,7 @@ oneTimeSetUp() {
   readonly COMMIT1=$(construct_notification "The first commit")
   readonly COMMIT2=$(construct_notification "The second commit")
   #Todo: handle dates
-  readonly MORE_THAN_ONE_MISSED_COMMITS_PATTERN="--group 1 -title Missed notifications on Github -subtitle
+  readonly MORE_THAN_ONE_MISSED_COMMITS_PATTERN="--group 1 -title Missed notifications on github.com -subtitle
   .*-message See all -open https://github.com/notifications"
   readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
 
