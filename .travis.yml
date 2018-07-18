@@ -35,5 +35,5 @@ after_success: |
   rm -rf kcov-master &&
   mkdir -p coverage &&
   find test -name *_test.sh -not -path *github_notif_test.sh -exec kcov --exclude-path=/usr coverage {} \;
-  kcov --exclude-path=/usr coverage test/shunit2 github_notif_test.sh
+  #kcov --exclude-path=/usr coverage shunit2 test/github_notif_test.sh
   bash <(curl -s https://codecov.io/bash)
