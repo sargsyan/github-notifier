@@ -1,7 +1,7 @@
 #!/bin/bash
 
 APP=github_notif
-readonly CURRENT_DIR=`dirname $1`
+readonly CURRENT_DIR=`dirname $0`
 
 . $CURRENT_DIR/lib/mock.sh
 
@@ -162,3 +162,5 @@ test_show_notifications_on_multiple_active_config_when_connections_fails() {
   assertTrue 'The error log is wrong' '[[ "$(echo "$error" | head -n 1)" == *"Failed to connect to url" ]]'
   assertTrue 'The error log is wrong' '[[ "$(echo "$error" | tail -n 1)" == *"Failed to connect to url" ]]'
 }
+
+. shunit2

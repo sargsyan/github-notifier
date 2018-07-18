@@ -30,3 +30,5 @@ test_mock_verify_with_pattern_successful_case() {
   mock command arg1 arg2
   assertEquals '' "$(verify_with_arg_pattern command arg1.*ar)"
 }
+
+. shunit2

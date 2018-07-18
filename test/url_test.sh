@@ -23,3 +23,5 @@ test_get_resource_name_invalid_url() {
   local error_message='The url is not a valid. Valid example should be like https://github.com'
   assertEquals "$error_message" "$(get_resource_name http://github.com)"
 }
+
+. shunit2

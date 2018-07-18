@@ -16,3 +16,5 @@ function test_prompt_on_yes() {
 function test_prompt_on_no() {
   assertEquals '' "$(prompt_for_action "echo hello" "Do you want to see hello" <<< no)"
 }
+
+. shunit2

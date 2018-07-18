@@ -154,3 +154,5 @@ test_token_missing_subcommand() {
   local usage=$($APP)
   assertEquals "$usage" "$error"
 }
+
+. shunit2
