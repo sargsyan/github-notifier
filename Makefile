@@ -7,7 +7,7 @@ uninstall:
 	./uninstall.sh
 
 test:
-	./test/github_notif_test.sh
+	shunit2 test/github_notif_test.sh
 	./test/configure_test.sh
 	./test/prompter_test.sh
 	./test/url_test.sh
