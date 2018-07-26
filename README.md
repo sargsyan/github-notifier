@@ -49,4 +49,4 @@ To check the daemon logs for the error use
 tail -f /var/log/system.log
 ```
 
-if the system logs tell that the application keeps exiting with non-zero exit codes, you can check the application log files located in the application folder and named **service.log**
+if the system logs tell that the application keeps exiting with non-zero exit codes, you can check the application log files located in the  **~/service.log** folder

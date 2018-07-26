@@ -4,7 +4,6 @@ readonly APPLICATION_DIR_ABSOLUTE_PATH="$(pwd -P $(dirname $0))"
 readonly GITHUB_NOTIF_APP=github_notif
 readonly CONFIGURE_APP=configure.sh
 readonly INVOCATION_INTERVAL_IN_SECONDS=60
-readonly LOGFILE_PATH=$APPLICATION_DIR_ABSOLUTE_PATH/service.log
 
 . $APPLICATION_DIR_ABSOLUTE_PATH/constants.sh
 . $APPLICATION_DIR_ABSOLUTE_PATH/lib/prompter.sh
