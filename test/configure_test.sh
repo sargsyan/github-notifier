@@ -8,7 +8,6 @@ oneTimeSetUp() {
 }
 
 oneTimeTearDown() {
-  rm $CONFIG_FILE_DIR/.github_notif_conf 2> /dev/null
   unset CONFIG_FILE_DIR
 }
 
@@ -153,6 +152,13 @@ test_token_missing_subcommand() {
   local error=$($APP token)
   local usage=$($APP)
   assertEquals "$usage" "$error"
+}
+
+test_clear_all_configs() {
+  $APP add https://config_name.com token
+  $APP add https://config_name2.com token
+  clear_all_configs
+  assertEquals '' "$($APP list)"
 }
 
 . shunit2

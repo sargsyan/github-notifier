@@ -2,10 +2,8 @@
 
 readonly JQ=jq
 readonly DIR_NAME=$(dirname $BASH_SOURCE)
-APPLICATION_DIR=`dirname $0`
-readonly LATEST_ID_FILE="$APPLICATION_DIR/.latest_id"
+readonly LATEST_ID_FILE="$HOME/.latest_id"
 KEEP_IN_SCREEN_TIME_IN_SECONDS=5
-CONFIG_FILE_DIR=$APPLICATION_DIR
 PATH=$PATH:/usr/local/bin
 
 . $DIR_NAME/lib/config_accessor.sh

@@ -56,8 +56,8 @@ oneTimeSetUp() {
   alias terminal-notifier=mock_terminal_notifier
   alias do_github_remote_call=mock_request
 
+  HOME=$SHUNIT_TMPDIR
   source $APP > /dev/null
-  readonly APPLICATION_DIR=$SHUNIT_TMPDIR
   KEEP_IN_SCREEN_TIME_IN_SECONDS=0
 
   readonly COMMIT1=$(construct_notification "The first commit")

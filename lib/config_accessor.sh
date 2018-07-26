@@ -1,14 +1,14 @@
 #!/bin/bash
-
 LIB_DIR_NAME=$(dirname $BASH_SOURCE)
-readonly SERVICE_NAME='github_notif'
-readonly CONFIG_FILE=$CONFIG_FILE_DIR/.${SERVICE_NAME}_conf
-
-readonly STATUS_ACTIVE='active'
-readonly STATUS_INACTIVE='inactive'
 
 . $LIB_DIR_NAME/macos/keychain_accessor.sh
 . $LIB_DIR_NAME/url.sh
+. $LIB_DIR_NAME/../constants.sh
+
+[ -z $CONFIG_FILE_DIR ] && CONFIG_FILE_DIR=$HOME
+readonly CONFIG_FILE=$CONFIG_FILE_DIR/.${SERVICE_NAME}_conf
+readonly STATUS_ACTIVE='active'
+readonly STATUS_INACTIVE='inactive'
 
 function config_exists() {
   ensure_config_file_is_created
@@ -102,6 +102,14 @@ function get_token() {
 function list_configs() {
   ensure_config_file_is_created
   cat $CONFIG_FILE
+}
+
+function clear_all_configs() {
+  ensure_config_file_is_created
+  local configs=$(cat $CONFIG_FILE | cut -d' ' -f1)
+  for config in $configs; do
+    remove_config $config
+  done
 }
 
 function get_active_configs() {

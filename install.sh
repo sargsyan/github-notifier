@@ -1,12 +1,14 @@
 #!/bin/bash
 
-readonly APPLICATION_DIR_ABSOLUTE_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
+readonly APPLICATION_DIR_ABSOLUTE_PATH="$(pwd -P $(dirname $0))"
 readonly GITHUB_NOTIF_APP=github_notif
 readonly CONFIGURE_APP=configure.sh
 readonly INVOCATION_INTERVAL_IN_SECONDS=60
 readonly LOGFILE_PATH=$APPLICATION_DIR_ABSOLUTE_PATH/service.log
 
+. $APPLICATION_DIR_ABSOLUTE_PATH/constants.sh
 . $APPLICATION_DIR_ABSOLUTE_PATH/lib/prompter.sh
+. $APPLICATION_DIR_ABSOLUTE_PATH/lib/config_accessor.sh
 
 function get_plist_body() {
 cat <<- EOF
@@ -35,14 +37,18 @@ function main() {
   brew ls --versions terminal-notifier > /dev/null || brew install terminal-notifier
   touch $LOGFILE_PATH
   echo "$(get_plist_body)" > org.github-notif.get.plist
-  sudo cp org.github-notif.get.plist /Library/LaunchDaemons/
+  cp org.github-notif.get.plist $LAUNCH_AGENTS_DIR &&
   rm org.github-notif.get.plist
-  launchctl load -w /Library/LaunchDaemons/org.github-notif.get.plist
-  local command="$APPLICATION_DIR_ABSOLUTE_PATH/$CONFIGURE_APP add https://github.com"
-  prompt_for_action "$command" "Do you want to setup https://github.com notifications now"
-  if [[ $? -ne 0 ]]; then
-    echo "You can add an instance later with '$command' command"
+  launchctl load -w $LAUNCH_AGENTS_DIR/org.github-notif.get.plist
+  local github_url=https://github.com
+  if ! config_exists $github_url; then
+    local command="$APPLICATION_DIR_ABSOLUTE_PATH/$CONFIGURE_APP add $github_url"
+    prompt_for_action "$command" "Do you want to setup $github_url notifications now"
+    if [[ $? -ne 0 ]]; then
+      echo "You can add an instance later with '$command' command"
+    fi
   fi
+  echo "The service is now installed for your account."
 }
 
 main
