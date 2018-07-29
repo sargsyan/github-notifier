@@ -192,7 +192,8 @@ function main() {
     updated_last_shown_commit_id=$(show_missed_notifications $config_name $access_token "$notifications_json" $last_shown_commit_id)
     local call_result=$?
     save_last_shown_commit_id $config_name $updated_last_shown_commit_id
-    if [[ $call_result -eq 0 ]]; then
+    if [[ $call_result -ne 0 ]]; then
+      log_error "Cannot save last shown commit id"
       exit_code=1
     fi
   done

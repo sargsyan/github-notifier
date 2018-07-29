@@ -44,7 +44,7 @@ function construct_notification() {
   local user=pengwynn
   local project="Hello-World"
   local commit_url=https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180
-  echo "--group 1 -title $user on $project -subtitle Greetings -message $commit_comment -open $commit_url -appIcon $DIR_NAME/logo.png"
+  echo "--group 1 -title $user commented on an issue in $project -subtitle Greetings -message $commit_comment -open $commit_url -appIcon $DIR_NAME/logo.png"
 }
 
 function mock_show_missed_notifications() {
