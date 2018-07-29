@@ -63,7 +63,7 @@ oneTimeSetUp() {
 
   readonly COMMIT1=$(construct_notification "pengwynn commented on an issue in Hello-World" "The first commit" https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180)
   readonly COMMIT2=$(construct_notification "pengwynn commented on an issue in Hello-World" "The second commit" https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180)
-  readonly COMMIT3=$(construct_notification "dlackty created an issue in Hello-World" "As titled. (Ref: #118.)Please help review and let me know if there is a problem. Thanks!" \
+  readonly COMMIT3=$(construct_notification "dlackty created an issue in Hello-World" "As titled. (Ref: #118.) Please help review and let me know if there is a problem. Thanks!" \
   https://github.com/octokit/octokit.rb/pull/123)
   #Todo: handle dates
   readonly MORE_THAN_ONE_MISSED_COMMITS_PATTERN="--group 1 -title Missed notifications on github.com -subtitle
