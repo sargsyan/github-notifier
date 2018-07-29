@@ -14,12 +14,17 @@ function show_notification () {
   local access_token=$1
   local notifications_json=$2
   local notification_index=$3
-  local notification_info=$(echo "$notifications_json" | $JQ ".[$notification_index].subject.latest_comment_url,.[$notification_index].repository.name,.[$notification_index].subject.title,.[$notification_index].subject.url,.[$notification_index].subject.type")
-  local latest_comment_url=$(echo $notification_info | cut -d'"' -f2)
-  local repo=$(echo $notification_info | cut -d'"' -f4)
-  local title=$(echo $notification_info | cut -d'"' -f6)
-  local general_url=$(echo $notification_info | cut -d'"' -f8)
-  local notification_type=$(echo $notification_info | cut -d'"' -f10 | sed 's|PullRequest|a PR|;s|Issue|an issue|;s|Commit|a commit|')
+
+  eval "$(echo "$notifications_json" | $JQ ".[$notification_index]" \
+  | $JQ -r '@sh "
+  latest_comment_url=\(.subject.latest_comment_url)
+  repo=\(.repository.name)
+  title=\(.subject.title)
+  general_url=\(.subject.url)
+  notification_type=\(.subject.type)
+  "')"
+
+  notification_type=$(echo $notification_type | sed 's|PullRequest|a PR|;s|Issue|an issue|;s|Commit|a commit|')
 
   # sometimes latest_comment_url="null", for example when PR title is set
   [[ $latest_comment_url == "null" ]] && notification_details_url="$general_url" || notification_details_url="$latest_comment_url"
@@ -41,7 +46,7 @@ function show_notification () {
   local details_title=$(echo "$notification_details" | sed -n '5p')
   local details_user_id=$(echo "$notification_details" | sed -n '6p')
 
-  echo "$notification_details_url" | grep -w 'comments'
+  echo "$notification_details_url" | grep -q 'comments'
   local call_result=$?
   if [[ $call_result -eq 0 ]]; then
     event_action='commented on'
@@ -53,7 +58,7 @@ function show_notification () {
 
   #remove '[' and '<' characters from begining of the strings
   #because of https://github.com/julienXX/terminal-notifier/issues/134
-  local details_body=$(echo $details_body | sed -E 's|^[\[\<]+||')
+  local body=$(echo $body | sed -E 's|^[\[\<]+||')
   local title=$(echo $title | sed -E 's|^[\[\<]+||')
 
   terminal-notifier --group 1 -title "${details_user//\"} ${event_action} $notification_type in ${repo//\"}" -subtitle "${title//\"}" \

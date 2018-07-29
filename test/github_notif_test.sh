@@ -15,6 +15,8 @@ function mock_request() {
     cat $CURRENT_DIR/data/notification_details_124.json
   elif [ "$url" == "https://api.github.com/repos/octokit/octokit.rb/issues/comments/125" ]; then
     cat $CURRENT_DIR/data/notification_details_125.json
+  elif [ "$url" == "https://api.github.com/repos/octokit/octokit.rb/issues/123" ]; then
+    cat $CURRENT_DIR/data/issue_notification_details_123.json
   elif [ "$url" == "https://github.com/notifications" ]; then
     cat $CURRENT_DIR/data/list_of_notifications.json
   fi
@@ -40,11 +42,10 @@ function mock_failing_notification_details_call() {
 }
 
 function construct_notification() {
-  local commit_comment=$1
-  local user=pengwynn
-  local project="Hello-World"
-  local commit_url=https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180
-  echo "--group 1 -title $user commented on an issue in $project -subtitle Greetings -message $commit_comment -open $commit_url -appIcon $DIR_NAME/logo.png"
+  local title=$1
+  local message=$2
+  local commit_url=$3
+  echo "--group 1 -title $title -subtitle Greetings -message $message -open $commit_url -appIcon $DIR_NAME/logo.png"
 }
 
 function mock_show_missed_notifications() {
@@ -60,8 +61,10 @@ oneTimeSetUp() {
   source $APP > /dev/null
   KEEP_IN_SCREEN_TIME_IN_SECONDS=0
 
-  readonly COMMIT1=$(construct_notification "The first commit")
-  readonly COMMIT2=$(construct_notification "The second commit")
+  readonly COMMIT1=$(construct_notification "pengwynn commented on an issue in Hello-World" "The first commit" https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180)
+  readonly COMMIT2=$(construct_notification "pengwynn commented on an issue in Hello-World" "The second commit" https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180)
+  readonly COMMIT3=$(construct_notification "dlackty created an issue in Hello-World" "As titled. (Ref: #118.)Please help review and let me know if there is a problem. Thanks!" \
+  https://github.com/octokit/octokit.rb/pull/123)
   #Todo: handle dates
   readonly MORE_THAN_ONE_MISSED_COMMITS_PATTERN="--group 1 -title Missed notifications on github.com -subtitle
   .*-message See all -open https://github.com/notifications -appIcon $DIR_NAME/logo.png"
@@ -71,6 +74,11 @@ oneTimeSetUp() {
 test_show_notification() {
   show_notification token "$NOTIFICATIONS_JSON" 0
   verify_with_all_args terminal_notifier "$COMMIT1"
+}
+
+test_show_notification_on_null_latest_commit_id() {
+  show_notification token "$NOTIFICATIONS_JSON" 3
+  verify_with_all_args terminal_notifier "$COMMIT3"
 }
 
 test_show_all_notifications() {
