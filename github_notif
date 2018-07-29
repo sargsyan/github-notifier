@@ -42,7 +42,7 @@ function show_notification () {
   details_body=\(.body)
   details_html_url=\(.html_url)
   details_updated=\(.updated_at)
-  details_title=\(.subject.type)
+  details_title=\(.title)
   "')"
 
   echo "$notification_details_url" | grep -q 'comments'
@@ -53,6 +53,7 @@ function show_notification () {
     event_action='created'
   fi
 
+  #TODOD: my be No description provided instead
   [[ $details_body != "" ]] && body="$details_body" || body="$details_title"
 
   #remove '[' and '<' characters from begining of the strings
