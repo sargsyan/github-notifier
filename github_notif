@@ -14,11 +14,12 @@ function show_notification () {
   local access_token=$1
   local notifications_json=$2
   local notification_index=$3
-  local notification_info=$(echo "$notifications_json" | $JQ ".[$notification_index].subject.latest_comment_url,.[$notification_index].repository.name,.[$notification_index].subject.title,.[$notification_index].subject.url")
+  local notification_info=$(echo "$notifications_json" | $JQ ".[$notification_index].subject.latest_comment_url,.[$notification_index].repository.name,.[$notification_index].subject.title,.[$notification_index].subject.url,.[$notification_index].subject.type")
   local latest_comment_url=$(echo $notification_info | cut -d'"' -f2)
   local repo=$(echo $notification_info | cut -d'"' -f4)
   local title=$(echo $notification_info | cut -d'"' -f6)
   local general_url=$(echo $notification_info | cut -d'"' -f8)
+  local notification_type=$(echo $notification_info | cut -d'"' -f10 | sed 's|PullRequest|a PR|;s|Issue|an issue|;s|Commit|a commit|')
 
   # sometimes latest_comment_url="null", for example when PR title is set
   [[ $latest_comment_url == "null" ]] && notification_details_url="$general_url" || notification_details_url="$latest_comment_url"
@@ -31,13 +32,22 @@ function show_notification () {
     return 1
   fi
 
-  local notification_details=$(echo "$notification_details_json" | $JQ '.user.login,.body,.html_url,.updated_at,.subject,.title')
+  local notification_details=$(echo "$notification_details_json" | $JQ '.user.login,.body,.html_url,.updated_at,.title,.user.id')
 
   local details_user=$(echo "$notification_details" | sed -n '1p')
   local details_body=$(echo "$notification_details" | sed -n '2p' | sed 's|\\r||g;s|\\n||g;s|\\t||g;s|<!--\(.*\)-->||g')
   local details_html_url=$(echo "$notification_details" | sed -n '3p')
   local details_updated=$(echo "$notification_details" | sed -n '4p')
   local details_title=$(echo "$notification_details" | sed -n '5p')
+  local details_user_id=$(echo "$notification_details" | sed -n '6p')
+
+  echo "$notification_details_url" | grep -w 'comments'
+  local call_result=$?
+  if [[ $call_result -eq 0 ]]; then
+    event_action='commented on'
+  else
+    event_action='created'
+  fi
 
   [[ $details_body != "" ]] && body="$details_body" || body="$details_title"
 
@@ -46,7 +56,7 @@ function show_notification () {
   local details_body=$(echo $details_body | sed -E 's|^[\[\<]+||')
   local title=$(echo $title | sed -E 's|^[\[\<]+||')
 
-  terminal-notifier --group 1 -title "${details_user//\"} on ${repo//\"}" -subtitle "${title//\"}" \
+  terminal-notifier --group 1 -title "${details_user//\"} ${event_action} $notification_type in ${repo//\"}" -subtitle "${title//\"}" \
   -message "${body//\"}" -open ${details_html_url//\"} -appIcon $DIR_NAME/logo.png
 }
 
