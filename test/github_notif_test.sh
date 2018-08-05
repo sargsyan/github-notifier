@@ -96,7 +96,7 @@ test_show_missed_notifications_on_total_one_notification() {
   local shown_id=0
   local one_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
   show_missed_notifications https://github.com token "[$one_notification]" $shown_id > $SHUNIT_TMPDIR/last_shown_id
-  assertEquals 1415394105 $(cat $SHUNIT_TMPDIR/last_shown_id)
+  assertEquals 1415397705 $(cat $SHUNIT_TMPDIR/last_shown_id)
   verify_with_all_args terminal_notifier "$COMMIT1"
 }
 
@@ -105,28 +105,28 @@ test_show_missed_notifications_on_total_two_notifications() {
   local first_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
   local second_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[1])
   show_missed_notifications https://github.com token "[$first_notification, $second_notification]" $shown_id > $SHUNIT_TMPDIR/last_shown_id
-  assertEquals 1415394105 $(cat $SHUNIT_TMPDIR/last_shown_id)
+  assertEquals 1415397705 $(cat $SHUNIT_TMPDIR/last_shown_id)
   verify_with_all_args terminal_notifier "$COMMIT1"
   verify_with_all_args terminal_notifier "$COMMIT2"
 }
 
 test_show_missed_notifications_when_no_new_notification() {
-  local shown_id=1415394105
+  local shown_id=1415397705
   local last_shown_id=$(show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id)
-  assertEquals 1415394105 "$last_shown_id"
+  assertEquals 1415397705 "$last_shown_id"
 }
 
 test_show_missed_notifications_on_one_new_notification() {
-  local shown_id=1415394104
+  local shown_id=1415397704
   show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id > $SHUNIT_TMPDIR/last_shown_id
-  assertEquals 1415394105 $(cat $SHUNIT_TMPDIR/last_shown_id)
+  assertEquals 1415397705 $(cat $SHUNIT_TMPDIR/last_shown_id)
   verify_with_all_args terminal_notifier "$COMMIT1"
 }
 
 test_show_missed_notifications_on_two_new_notifications() {
-  local shown_id=1415394103
+  local shown_id=1415397703
   show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id > $SHUNIT_TMPDIR/last_shown_id
-  assertEquals 1415394105 $(cat $SHUNIT_TMPDIR/last_shown_id)
+  assertEquals 1415397705 $(cat $SHUNIT_TMPDIR/last_shown_id)
   verify_with_all_args terminal_notifier "$COMMIT1"
   verify_with_all_args terminal_notifier "$COMMIT2"
 }
@@ -134,7 +134,7 @@ test_show_missed_notifications_on_two_new_notifications() {
 test_show_missed_notifications_on_more_than_two_notifications() {
   local shown_id=0
   show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id > $SHUNIT_TMPDIR/last_shown_id
-  assertEquals 1415394105 $(cat $SHUNIT_TMPDIR/last_shown_id)
+  assertEquals 1415397705 $(cat $SHUNIT_TMPDIR/last_shown_id)
   verify_with_all_args terminal_notifier "$COMMIT1"
   verify_with_all_args terminal_notifier "$COMMIT2"
   verify_with_arg_pattern terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS_PATTERN

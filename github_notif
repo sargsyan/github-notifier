@@ -134,7 +134,7 @@ function show_missed_notifications() {
   local shown_id=$4
 
   local latest_commit_dates=( $(echo "$notifications_json" | $JQ '.[0,1,2].updated_at' | \
-  egrep '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z' | xargs -n 1 date -j -f "%Y-%m-%dT%TZ" +"%s") )
+  egrep '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z' | xargs -n 1 date -u -j -f "%Y-%m-%dT%TZ" +"%s") )
 
   if (( $shown_id < ${latest_commit_dates[0]:--1} )); then
     error_message=$(show_notification $access_token "$notifications_json" 0)
