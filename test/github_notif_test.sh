@@ -66,7 +66,7 @@ oneTimeSetUp() {
   readonly COMMIT3=$(construct_notification "dlackty created an issue in Hello-World" "As titled. (Ref: #118.) Please help review and let me know if there is a problem. Thanks!" \
   https://github.com/octokit/octokit.rb/pull/123)
   #Todo: handle dates
-  readonly MORE_THAN_ONE_MISSED_COMMITS="--group 1 -title Missed notifications on github.com
+  readonly MORE_THAN_ONE_MISSED_COMMITS="--group 1 -title More missed notifications on github.com
   -message See all -open https://github.com/notifications -appIcon $DIR_NAME/logo.png"
   readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
 }

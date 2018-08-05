@@ -67,7 +67,7 @@ function show_notification () {
 
 function show_all_notifications () {
   config_url=$1
-  terminal-notifier --group 1 -title "Missed notifications on $(get_resource_name $config_url)" \
+  terminal-notifier --group 1 -title "More missed notifications on $(get_resource_name $config_url)" \
   -message "See all" -open $config_url/notifications -appIcon $DIR_NAME/logo.png
 }
 
