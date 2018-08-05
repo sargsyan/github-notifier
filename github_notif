@@ -9,6 +9,7 @@ PATH=$PATH:/usr/local/bin
 . $DIR_NAME/lib/config_accessor.sh
 . $DIR_NAME/lib/logger.sh
 . $DIR_NAME/lib/url.sh
+. $DIR_NAME/lib/notifier.sh
 
 function show_notification () {
   local access_token=$1
@@ -53,22 +54,15 @@ function show_notification () {
     event_action='created'
   fi
 
-  #TODOD: my be No description provided instead
+  #TODO: my be no description provided instead
   [[ $details_body != "" ]] && body="$details_body" || body="$details_title"
 
-  #remove '[' and '<' characters from begining of the strings
-  #because of https://github.com/julienXX/terminal-notifier/issues/134
-  local body=$(echo $body | sed -E 's|^[\[\<]+||')
-  local title=$(echo $title | sed -E 's|^[\[\<]+||')
-
-  terminal-notifier --group 1 -title "${details_user//\"} ${event_action} $notification_type in ${repo//\"}" -subtitle "${title//\"}" \
-  -message "${body//\"}" -open ${details_html_url//\"} -appIcon $DIR_NAME/logo.png
+  show_notification_window "${details_user//\"} ${event_action} $notification_type in ${repo//\"}" "${title//\"}" ${body//\"} ${details_html_url//\"} $DIR_NAME/logo.png
 }
 
 function show_all_notifications () {
   config_url=$1
-  terminal-notifier --group 1 -title "More missed notifications on $(get_resource_name $config_url)" \
-  -message "See all" -open $config_url/notifications -appIcon $DIR_NAME/logo.png
+  show_notification_window "More missed notifications on $(get_resource_name $config_url)" "See all" $config_url/notifications $DIR_NAME/logo.png
 }
 
 function get_last_shown_commit_date() {

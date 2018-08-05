@@ -45,7 +45,7 @@ function construct_notification() {
   local title=$1
   local message=$2
   local commit_url=$3
-  echo "--group 1 -title $title -subtitle Greetings -message $message -open $commit_url -appIcon $DIR_NAME/logo.png"
+  echo "$title Greetings $message $commit_url $DIR_NAME/logo.png"
 }
 
 function mock_show_missed_notifications() {
@@ -54,7 +54,7 @@ function mock_show_missed_notifications() {
 
 oneTimeSetUp() {
   shopt -s expand_aliases
-  alias terminal-notifier=mock_terminal_notifier
+  alias show_notification_window=mock_terminal_notifier
   alias do_github_remote_call=mock_request
 
   HOME=$SHUNIT_TMPDIR
@@ -65,9 +65,7 @@ oneTimeSetUp() {
   readonly COMMIT2=$(construct_notification "pengwynn commented on an issue in Hello-World" "The second commit" https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180)
   readonly COMMIT3=$(construct_notification "dlackty created an issue in Hello-World" "As titled. (Ref: #118.) Please help review and let me know if there is a problem. Thanks!" \
   https://github.com/octokit/octokit.rb/pull/123)
-  #Todo: handle dates
-  readonly MORE_THAN_ONE_MISSED_COMMITS="--group 1 -title More missed notifications on github.com
-  -message See all -open https://github.com/notifications -appIcon $DIR_NAME/logo.png"
+  readonly MORE_THAN_ONE_MISSED_COMMITS="More missed notifications on github.com See all https://github.com/notifications $DIR_NAME/logo.png"
   readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
 }
 
