@@ -81,8 +81,8 @@
     },
     "reason": "subscribed",
     "unread": true,
-    "updated_at": "2014-11-07T22:01:45Z",
-    "last_read_at": "2014-11-07T22:01:45Z",
+    "updated_at": "2014-11-07T22:01:44Z",
+    "last_read_at": "2014-11-07T22:01:44Z",
     "url": "https://api.github.com/notifications/threads/1"
   },
   {
@@ -124,8 +124,8 @@
     },
     "reason": "subscribed",
     "unread": true,
-    "updated_at": "2014-11-07T22:01:45Z",
-    "last_read_at": "2014-11-07T22:01:45Z",
+    "updated_at": "2014-11-07T22:01:43Z",
+    "last_read_at": "2014-11-07T22:01:43Z",
     "url": "https://api.github.com/notifications/threads/1"
   },
   {
@@ -167,8 +167,8 @@
     },
     "reason": "subscribed",
     "unread": true,
-    "updated_at": "2014-11-07T22:01:45Z",
-    "last_read_at": "2014-11-07T22:01:45Z",
+    "updated_at": "2014-11-07T22:01:42Z",
+    "last_read_at": "2014-11-07T22:01:42Z",
     "url": "https://api.github.com/notifications/threads/1"
   }
 ]

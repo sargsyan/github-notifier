@@ -71,7 +71,7 @@ function show_all_notifications () {
   -subtitle "$(date)" -message "See all" -open $config_url/notifications -appIcon $DIR_NAME/logo.png
 }
 
-function get_last_shown_commit_id() {
+function get_last_shown_commit_date() {
   local config_name=$1
 
   if [ -f $LATEST_ID_FILE ]; then
@@ -81,7 +81,7 @@ function get_last_shown_commit_id() {
   fi
 }
 
-function save_last_shown_commit_id() {
+function save_last_shown_commit_date() {
   local config_name=$1
   local value=$2
   if [ -f $LATEST_ID_FILE ]; then
@@ -133,9 +133,10 @@ function show_missed_notifications() {
   local notifications_json=$3
   local shown_id=$4
 
-  local latest_commit_ids=( $(echo "$notifications_json" | $JQ '.[0,1,2].id' | tr -d '"') )
+  local latest_commit_dates=( $(echo "$notifications_json" | $JQ '.[0,1,2].updated_at' | \
+  egrep '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z' | xargs -n 1 date -j -f "%Y-%m-%dT%TZ" +"%s") )
 
-  if [[ ${latest_commit_ids[0]} != null && $shown_id != ${latest_commit_ids[0]} ]]; then
+  if (( $shown_id < ${latest_commit_dates[0]:--1} )); then
     error_message=$(show_notification $access_token "$notifications_json" 0)
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
@@ -149,7 +150,7 @@ function show_missed_notifications() {
     return $exit_code
   fi
 
-  if [[ ${latest_commit_ids[1]} != null && $shown_id != ${latest_commit_ids[1]} ]]; then
+  if (( $shown_id < ${latest_commit_dates[1]:--1} )); then
     error_message=$(show_notification $access_token "$notifications_json" 1)
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
@@ -159,16 +160,16 @@ function show_missed_notifications() {
       sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
     fi
   else
-    echo ${latest_commit_ids[0]}
+    echo ${latest_commit_dates[0]}
     return $exit_code
   fi
 
-  if [[ ${latest_commit_ids[2]} != null && $shown_id != ${latest_commit_ids[2]} ]]; then
+  if (( $shown_id < ${latest_commit_dates[2]:--1} )); then
     show_all_notifications $config_url
     sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
   fi
 
-  echo ${latest_commit_ids[0]}
+  echo ${latest_commit_dates[0]}
   return $exit_code
 }
 
@@ -181,7 +182,7 @@ function main() {
   fi
 
   for config_name in $active_configs ; do
-    local last_shown_commit_id=$(get_last_shown_commit_id $config_name)
+    local last_shown_commit_date=$(get_last_shown_commit_date $config_name)
     local notifications_json
     access_token=$(get_token $config_name)
     local notifications_api_url="${config_name/https:\/\//https://api.}"/notifications
@@ -193,10 +194,10 @@ function main() {
       continue
     fi
 
-    local updated_last_shown_commit_id
-    updated_last_shown_commit_id=$(show_missed_notifications $config_name $access_token "$notifications_json" $last_shown_commit_id)
+    local updated_last_shown_commit_date
+    updated_last_shown_commit_date=$(show_missed_notifications $config_name $access_token "$notifications_json" $last_shown_commit_date)
     local call_result=$?
-    save_last_shown_commit_id $config_name $updated_last_shown_commit_id
+    save_last_shown_commit_date $config_name $updated_last_shown_commit_date
     if [[ $call_result -ne 0 ]]; then
       log_error "Cannot save last shown commit id"
       exit_code=1
