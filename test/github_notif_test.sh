@@ -66,8 +66,8 @@ oneTimeSetUp() {
   readonly COMMIT3=$(construct_notification "dlackty created an issue in Hello-World" "As titled. (Ref: #118.) Please help review and let me know if there is a problem. Thanks!" \
   https://github.com/octokit/octokit.rb/pull/123)
   #Todo: handle dates
-  readonly MORE_THAN_ONE_MISSED_COMMITS_PATTERN="--group 1 -title Missed notifications on github.com -subtitle
-  .*-message See all -open https://github.com/notifications -appIcon $DIR_NAME/logo.png"
+  readonly MORE_THAN_ONE_MISSED_COMMITS="--group 1 -title Missed notifications on github.com
+  -message See all -open https://github.com/notifications -appIcon $DIR_NAME/logo.png"
   readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
 }
 
@@ -83,7 +83,7 @@ test_show_notification_on_null_latest_commit_date() {
 
 test_show_all_notifications() {
   show_all_notifications https://github.com
-  verify_with_arg_pattern terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS_PATTERN
+  verify_with_all_args terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS
 }
 
 test_show_missed_notifications_when_no_notification() {
@@ -137,7 +137,7 @@ test_show_missed_notifications_on_more_than_two_notifications() {
   assertEquals 1415397705 $(cat $SHUNIT_TMPDIR/last_shown_id)
   verify_with_all_args terminal_notifier "$COMMIT1"
   verify_with_all_args terminal_notifier "$COMMIT2"
-  verify_with_arg_pattern terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS_PATTERN
+  verify_with_all_args terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS
 }
 
 test_show_missed_notifications_on_failing_notification_details_call() {
@@ -146,7 +146,7 @@ test_show_missed_notifications_on_failing_notification_details_call() {
   show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_id > $SHUNIT_TMPDIR/last_shown_id
   assertEquals 1 $?
   verify_with_all_args terminal_notifier "$COMMIT2"
-  verify_with_arg_pattern terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS_PATTERN
+  verify_with_all_args terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS
 }
 
 test_show_notifications_on_missing_active_configs() {
