@@ -18,13 +18,11 @@ function mock() {
 }
 
 function verify_with_all_args() {
-  local args="$@"
-  __verify_with_assertion __verify_with_all_args $args
+  __verify_with_assertion __verify_with_all_args "$@"
 }
 
 function verify_with_arg_pattern() {
-  local args="$@"
-  __verify_with_assertion __verify_with_arg_pattern $args
+  __verify_with_assertion __verify_with_arg_pattern "$@"
 }
 
 function __verify_with_assertion() {

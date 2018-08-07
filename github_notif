@@ -57,7 +57,7 @@ function show_notification () {
   #TODO: my be no description provided instead
   [[ $details_body != "" ]] && body="$details_body" || body="$details_title"
 
-  show_notification_window "${details_user//\"} ${event_action} $notification_type in ${repo//\"}" "${title//\"}" ${body//\"} ${details_html_url//\"} $DIR_NAME/logo.png
+  show_notification_window "${details_user//\"} ${event_action} $notification_type in ${repo//\"}" "${title//\"}" "${body//\"}" ${details_html_url//\"} $DIR_NAME/logo.png
 }
 
 function show_all_notifications () {
