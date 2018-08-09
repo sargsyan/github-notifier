@@ -23,6 +23,7 @@ function show_notification () {
   title=\(.subject.title)
   general_url=\(.subject.url)
   notification_type=\(.subject.type)
+  updated_at=\(.updated_at)
   "')"
 
   notification_type=$(echo $notification_type | sed 's|PullRequest|a PR|;s|Issue|an issue|;s|Commit|a commit|')
@@ -44,6 +45,10 @@ function show_notification () {
   details_html_url=\(.html_url)
   details_updated=\(.updated_at)
   details_title=\(.title)
+  details_created_at=\(.created_at)
+  details_updated_at=\(.updated_at)
+  details_closed_at=\(.closed_at)
+  details_merged_at=\(.merged_at)
   "')"
 
   echo "$notification_details_url" | grep -q 'comments'
@@ -51,13 +56,28 @@ function show_notification () {
   if [[ $call_result -eq 0 ]]; then
     event_action='commented on'
   else
-    event_action='created'
+    if [[ -n $details_created_at && $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_created_at) )) == 0 ]]; then
+      event_action="created"
+    elif [[ -n $details_updated_at && $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_updated_at) )) == 0 ]]; then
+      event_action="updated" #TODO: distuinguish committed /pull/<id>/[commits,comments]
+    elif [[ -n $details_merged_at && $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_merged_at) )) == 0 ]]; then
+      event_action="merged"
+    elif [[ -n $details_closed_at && $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_closed_at) )) == 0 ]]; then
+      event_action="closed"
+    else
+      event_action='contributed on'
+    fi
   fi
 
   #TODO: my be no description provided instead
   [[ $details_body != "" ]] && body="$details_body" || body="$details_title"
 
   show_notification_window "${details_user//\"} ${event_action} $notification_type in ${repo//\"}" "${title//\"}" "${body//\"}" ${details_html_url//\"} $DIR_NAME/logo.png
+}
+
+function date_to_epoch() {
+  local input_date=$1
+  echo $(date -u -j -f "%Y-%m-%dT%TZ" +"%s" $input_date)
 }
 
 function show_all_notifications () {
