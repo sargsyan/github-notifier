@@ -82,7 +82,7 @@ function date_to_epoch() {
 
 function show_all_notifications () {
   config_url=$1
-  show_notification_window "More missed notifications on $(get_resource_name $config_url)" "See all" $config_url/notifications $DIR_NAME/logo.png
+  show_notification_window "More missed notifications on $(get_resource_name $config_url)" "See all" "" $config_url/notifications $DIR_NAME/logo.png
 }
 
 function get_last_shown_commit_date() {

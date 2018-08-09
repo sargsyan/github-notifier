@@ -65,7 +65,6 @@ oneTimeSetUp() {
   readonly COMMIT2=$(construct_notification "pengwynn commented on an issue in Hello-World" "The second commit" https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180)
   readonly COMMIT3=$(construct_notification "dlackty updated an issue in Hello-World" $'As titled. (Ref: #118.)\nPlease help review and let me know if there is a problem. Thanks!\n' \
   https://github.com/octokit/octokit.rb/pull/123)
-  readonly MORE_THAN_ONE_MISSED_COMMITS="More missed notifications on github.com See all https://github.com/notifications $DIR_NAME/logo.png"
   readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
 }
 
@@ -81,7 +80,7 @@ test_show_notification_on_null_latest_commit_date() {
 
 test_show_all_notifications() {
   show_all_notifications https://github.com
-  verify_with_all_args terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS
+  verify_with_all_args terminal_notifier "More missed notifications on github.com" "See all" "" https://github.com/notifications $DIR_NAME/logo.png
 }
 
 test_show_missed_notifications_when_no_notification() {
@@ -135,7 +134,7 @@ test_show_missed_notifications_on_more_than_two_notifications() {
   assertEquals 1415397705 $(cat $SHUNIT_TMPDIR/last_shown_date)
   verify_with_all_args terminal_notifier "$COMMIT1"
   verify_with_all_args terminal_notifier "$COMMIT2"
-  verify_with_all_args terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS
+  verify_with_all_args terminal_notifier "More missed notifications on github.com" "See all" "" https://github.com/notifications $DIR_NAME/logo.png
 }
 
 test_show_missed_notifications_on_failing_notification_details_call() {
@@ -144,7 +143,7 @@ test_show_missed_notifications_on_failing_notification_details_call() {
   show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_date > $SHUNIT_TMPDIR/last_shown_date
   assertEquals 1 $?
   verify_with_all_args terminal_notifier "$COMMIT2"
-  verify_with_all_args terminal_notifier $MORE_THAN_ONE_MISSED_COMMITS
+  verify_with_all_args terminal_notifier "More missed notifications on github.com" "See all" "" https://github.com/notifications $DIR_NAME/logo.png
 }
 
 test_show_notifications_on_missing_active_configs() {
