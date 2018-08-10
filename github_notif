@@ -56,14 +56,14 @@ function show_notification () {
   if [[ $call_result -eq 0 ]]; then
     event_action='commented on'
   else
-    if [[ -n $details_created_at && $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_created_at) )) == 0 ]]; then
-      event_action="created"
-    elif [[ -n $details_updated_at && $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_updated_at) )) == 0 ]]; then
-      event_action="updated" #TODO: distuinguish committed /pull/<id>/[commits,comments]
-    elif [[ -n $details_merged_at && $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_merged_at) )) == 0 ]]; then
-      event_action="merged"
-    elif [[ -n $details_closed_at && $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_closed_at) )) == 0 ]]; then
+    if [[ $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_closed_at) )) -lt 5 ]]; then
       event_action="closed"
+    elif [[ $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_merged_at) )) -lt 5 ]]; then
+      event_action="merged"
+    elif [[ $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_created_at) )) -lt 5 ]]; then
+      event_action="created"
+    elif [[ $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_updated_at) )) -lt 5 ]]; then
+      event_action="updated" #TODO: distuinguish committed /pull/<id>/[commits,comments]
     else
       event_action='contributed on'
     fi
@@ -77,7 +77,11 @@ function show_notification () {
 
 function date_to_epoch() {
   local input_date=$1
-  echo $(date -u -j -f "%Y-%m-%dT%TZ" +"%s" $input_date)
+  if [[ $(echo $input_date | egrep '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z') == "" ]]; then
+    echo "0"
+  else
+    echo $(date -u -j -f "%Y-%m-%dT%TZ" +"%s" $input_date)
+  fi
 }
 
 function show_all_notifications () {
@@ -199,6 +203,7 @@ function main() {
     local last_shown_commit_date=$(get_last_shown_commit_date $config_name)
     local notifications_json
     access_token=$(get_token $config_name)
+
     local notifications_api_url="${config_name/https:\/\//https://api.}"/notifications
     notifications_json=$(do_github_remote_call $notifications_api_url $access_token)
     local call_result=$?
