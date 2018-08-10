@@ -49,17 +49,23 @@ function show_notification () {
   details_updated_at=\(.updated_at)
   details_closed_at=\(.closed_at)
   details_merged_at=\(.merged_at)
+  details_closed_by=\(.closed_by.login)
+  details_merged_by=\(.merged_by.login)
   "')"
+
+  local user=$details_user
 
   echo "$notification_details_url" | grep -q 'comments'
   local call_result=$?
   if [[ $call_result -eq 0 ]]; then
     event_action='commented on'
   else
-    if [[ $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_closed_at) )) -lt 5 ]]; then
+    if [[ "$details_closed_by" != "null" && $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_closed_at) )) -lt 5 ]]; then
       event_action="closed"
-    elif [[ $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_merged_at) )) -lt 5 ]]; then
+      user=$details_closed_by
+    elif [[ "$details_merged_by" != "null" && $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_merged_at) )) -lt 5 ]]; then
       event_action="merged"
+      user=$details_merged_by
     elif [[ $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_created_at) )) -lt 5 ]]; then
       event_action="created"
     elif [[ $(( $(date_to_epoch $updated_at) - $(date_to_epoch $details_updated_at) )) -lt 5 ]]; then
@@ -69,10 +75,11 @@ function show_notification () {
     fi
   fi
 
-  #TODO: my be no description provided instead
+  #TODO: may be no description provided instead
   [[ $details_body != "" ]] && body="$details_body" || body="$details_title"
 
-  show_notification_window "${details_user//\"} ${event_action} $notification_type in ${repo//\"}" "${title//\"}" "${body//\"}" ${details_html_url//\"} $DIR_NAME/logo.png
+
+  show_notification_window "${user//\"} ${event_action} $notification_type in ${repo//\"}" "${title//\"}" "${body//\"}" ${details_html_url//\"} $DIR_NAME/logo.png
 }
 
 function date_to_epoch() {

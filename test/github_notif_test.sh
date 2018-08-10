@@ -17,6 +17,8 @@ function mock_request() {
     cat $CURRENT_DIR/data/notification_details_125.json
   elif [ "$url" == "https://api.github.com/repos/octokit/octokit.rb/issues/123" ]; then
     cat $CURRENT_DIR/data/issue_notification_details_123.json
+  elif [ "$url" == "https://api.github.com/repos/octokit/octokit.rb/issues/123.closed" ]; then
+    cat $CURRENT_DIR/data/closed_issue_notification_details_123.json
   elif [ "$url" == "https://github.com/notifications" ]; then
     cat $CURRENT_DIR/data/list_of_notifications.json
   fi
@@ -65,6 +67,8 @@ oneTimeSetUp() {
   readonly COMMIT2=$(construct_notification "pengwynn commented on an issue in Hello-World" "The second commit" https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180)
   readonly COMMIT3=$(construct_notification "dlackty updated an issue in Hello-World" $'As titled. (Ref: #118.)\nPlease help review and let me know if there is a problem. Thanks!\n' \
   https://github.com/octokit/octokit.rb/pull/123)
+  readonly COMMIT4=$(construct_notification "pengwynn closed an issue in Hello-World" $'As titled. (Ref: #118.)\nPlease help review and let me know if there is a problem. Thanks!\n' \
+  https://github.com/octokit/octokit.rb/pull/123)
   readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
 }
 
@@ -76,6 +80,11 @@ test_show_notification() {
 test_show_notification_on_null_latest_commit_date() {
   show_notification token "$NOTIFICATIONS_JSON" 3
   verify_with_all_args terminal_notifier "$COMMIT3"
+}
+
+test_show_notification_on_closed_commit() {
+  show_notification token "$NOTIFICATIONS_JSON" 4
+  verify_with_all_args terminal_notifier "$COMMIT4"
 }
 
 test_show_all_notifications() {
