@@ -1,7 +1,6 @@
 #!/bin/bash
 
 readonly DIR_NAME=$(dirname $BASH_SOURCE)
-readonly LATEST_SHOWN_FILE="$HOME/.latest_shown"
 readonly MAX_NUMBER_OF_MISSED_NOTIFICATIONS_TO_SHOW=2
 KEEP_IN_SCREEN_TIME_IN_SECONDS=5
 PATH=$PATH:/usr/local/bin
@@ -11,6 +10,7 @@ PATH=$PATH:/usr/local/bin
 . $DIR_NAME/lib/url.sh
 . $DIR_NAME/lib/notifier.sh
 . $DIR_NAME/lib/remote_gateway.sh
+. $DIR_NAME/lib/last_shown_info.sh
 
 function show_notification () {
   local access_token=$1
@@ -107,32 +107,6 @@ function date_to_epoch() {
 function show_all_notifications () {
   config_url=$1
   show_notification_window "More missed notifications on $(get_resource_name $config_url)" "See all" "" $config_url/notifications $DIR_NAME/logo.png
-}
-
-function get_last_shown_commit_date() {
-  local config_name=$1
-
-  if [ -f $LATEST_SHOWN_FILE ]; then
-    echo $(cat $LATEST_SHOWN_FILE | grep -w "$config_name" | cut -d' ' -f2)
-  else
-    echo "0"
-  fi
-}
-
-function save_last_shown_commit_date() {
-  local config_name=$1
-  local value=$2
-  if [ -f $LATEST_SHOWN_FILE ]; then
-    local line_number=$(grep -wn "$config_name" $LATEST_SHOWN_FILE | cut -d: -f1)
-    if [[ -n "$line_number" ]]; then
-      sed -i .bak "${line_number}s|.*|$config_name $value|" $LATEST_SHOWN_FILE &&
-      rm $LATEST_SHOWN_FILE.bak
-    else
-      echo $config_name $value >> $LATEST_SHOWN_FILE
-    fi
-  else
-    echo $config_name $value >> $LATEST_SHOWN_FILE
-  fi
 }
 
 function show_missed_notifications() {
