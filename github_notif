@@ -3,6 +3,7 @@
 readonly JQ=jq
 readonly DIR_NAME=$(dirname $BASH_SOURCE)
 readonly LATEST_SHOWN_FILE="$HOME/.latest_shown"
+readonly MAX_NUMBER_OF_MISSED_NOTIFICATIONS_TO_SHOW=2
 KEEP_IN_SCREEN_TIME_IN_SECONDS=5
 PATH=$PATH:/usr/local/bin
 
@@ -79,7 +80,6 @@ function show_notification () {
   #TODO: may be no description provided instead
   [[ $details_body != "" ]] && body="$details_body" || body="$details_title"
 
-
   show_notification_window "${user//\"} ${event_action} $notification_type in ${repo//\"}" "${title//\"}" "${body//\"}" ${details_html_url//\"} $DIR_NAME/logo.png
 }
 
@@ -123,7 +123,6 @@ function save_last_shown_commit_date() {
   fi
 }
 
-# current implementation have limit of 2
 function show_missed_notifications() {
   local config_url=$1
   local access_token=$2
@@ -133,40 +132,27 @@ function show_missed_notifications() {
   local latest_commit_dates=( $(echo "$notifications_json" | $JQ '.[0,1,2].updated_at' | \
   egrep '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z' | xargs -n 1 date -u -j -f "%Y-%m-%dT%TZ" +"%s") )
 
-  if (( $shown_date < ${latest_commit_dates[0]:--1} )); then
-    error_message=$(show_notification $access_token "$notifications_json" 0)
-    local call_result=$?
-    if [[ $call_result -ne 0 ]]; then
-      log_error "An error occured while showing notification. $error_message"
-      exit_code=1
+  for ((i = 0; i < $MAX_NUMBER_OF_MISSED_NOTIFICATIONS_TO_SHOW; i++)); do
+    if (( $shown_date < ${latest_commit_dates[$i]:--1} )); then
+      error_message=$(show_notification $access_token "$notifications_json" $i)
+      local call_result=$?
+      if [[ $call_result -ne 0 ]]; then
+        log_error "An error occured while showing notification. $error_message"
+        exit_code=1
+      else
+        sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
+      fi
     else
-      sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
+      break;
     fi
-  else
-    echo $shown_date
-    return $exit_code
-  fi
-
-  if (( $shown_date < ${latest_commit_dates[1]:--1} )); then
-    error_message=$(show_notification $access_token "$notifications_json" 1)
-    local call_result=$?
-    if [[ $call_result -ne 0 ]]; then
-      log_error "An error occured while showing notification. $error_message"
-      exit_code=1
-    else
-      sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
-    fi
-  else
-    echo ${latest_commit_dates[0]}
-    return $exit_code
-  fi
+  done
 
   if (( $shown_date < ${latest_commit_dates[2]:--1} )); then
     show_all_notifications $config_url
     sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
   fi
 
-  echo ${latest_commit_dates[0]}
+  (( $shown_date > ${latest_commit_dates[0]:--1} )) && echo $shown_date || echo ${latest_commit_dates[0]}
   return $exit_code
 }
 
