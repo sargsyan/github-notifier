@@ -34,6 +34,7 @@ EOF
 
 function main() {
   brew ls --versions terminal-notifier > /dev/null || brew install terminal-notifier
+  brew install emojify
   mkdir -p $(dirname $LOGFILE_PATH)
   touch $LOGFILE_PATH
   echo "$(get_plist_body)" > org.github-notif.get.plist

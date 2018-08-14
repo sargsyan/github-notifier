@@ -1,9 +1,11 @@
 #!/bin/bash
 
+readonly EMOJIFY=$([ -x "$(command -v emojify)" ] && echo emojify || echo cat)
+
 function show_notification_window() {
-  local title=$1
-  local subtitle=$2
-  local message=$3
+  local title=$(echo $1 | $EMOJIFY)
+  local subtitle=$(echo $2 | $EMOJIFY)
+  local message=$(echo $3 | $EMOJIFY)
   local link=$4
   local icon=$5
 
