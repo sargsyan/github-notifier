@@ -1,7 +1,5 @@
 #!/bin/bash
 
-readonly JQ=jq
-
 function do_github_remote_call() {
   local url=$1
   local access_token=$2
@@ -16,7 +14,7 @@ function do_github_remote_call() {
   local response_status_code=$(echo "$response" | tail -n 1)
   local response_body=$(echo "$response" | sed \$d)
   if [[ $response_status_code != 200 ]]; then
-    local error_message=$(echo "$response_body" | $JQ -r .message )
+    local error_message=$(echo "$response_body" | jq -r .message )
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
       echo "An error occured while accessing $url. The output of notifications is not of known format"

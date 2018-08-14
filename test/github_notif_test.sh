@@ -100,7 +100,7 @@ test_show_missed_notifications_when_no_notification() {
 
 test_show_missed_notifications_on_total_one_notification() {
   local shown_date=0
-  local one_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
+  local one_notification=$(echo "$NOTIFICATIONS_JSON" | jq .[0])
   show_missed_notifications https://github.com token "[$one_notification]" $shown_date > $SHUNIT_TMPDIR/last_shown_date
   assertEquals 1415397705 $(cat $SHUNIT_TMPDIR/last_shown_date)
   verify_with_all_args terminal_notifier "$COMMIT1"
@@ -108,8 +108,8 @@ test_show_missed_notifications_on_total_one_notification() {
 
 test_show_missed_notifications_on_total_two_notifications() {
   local shown_date=0
-  local first_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[0])
-  local second_notification=$(echo "$NOTIFICATIONS_JSON" | $JQ .[1])
+  local first_notification=$(echo "$NOTIFICATIONS_JSON" | jq .[0])
+  local second_notification=$(echo "$NOTIFICATIONS_JSON" | jq .[1])
   show_missed_notifications https://github.com token "[$first_notification, $second_notification]" $shown_date > $SHUNIT_TMPDIR/last_shown_date
   assertEquals 1415397705 $(cat $SHUNIT_TMPDIR/last_shown_date)
   verify_with_all_args terminal_notifier "$COMMIT1"
