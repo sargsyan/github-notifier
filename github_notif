@@ -158,7 +158,7 @@ function show_missed_notifications() {
     sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
   fi
 
-  (( $shown_date > ${latest_commit_dates[0]:--1} )) && echo $shown_date || echo ${latest_commit_dates[0]}
+  (( $exit_code == 0 && $shown_date > ${latest_commit_dates[0]:--1} )) && echo $shown_date || echo ${latest_commit_dates[0]}
   return $exit_code
 }
 
@@ -187,10 +187,11 @@ function main() {
     local updated_last_shown_commit_date
     updated_last_shown_commit_date=$(show_missed_notifications $config_name $access_token "$notifications_json" $last_shown_commit_date)
     local call_result=$?
-    save_last_shown_commit_date $config_name $updated_last_shown_commit_date
     if [[ $call_result -ne 0 ]]; then
-      log_error "Cannot save last shown commit date"
+      log_error "Cannot save last shown commit date. $updated_last_shown_commit_date"
       exit_code=1
+    else
+      save_last_shown_commit_date $config_name $updated_last_shown_commit_date
     fi
   done
 
