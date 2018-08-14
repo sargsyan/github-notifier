@@ -47,7 +47,8 @@ function construct_notification() {
   local title=$1
   local message=$2
   local commit_url=$3
-  echo "$title Greetings $message $commit_url $DIR_NAME/logo.png"
+  local avatar_url=$4
+  echo "$title Greetings $message $commit_url $avatar_url"
 }
 
 function mock_show_missed_notifications() {
@@ -63,12 +64,14 @@ oneTimeSetUp() {
   source $APP > /dev/null
   KEEP_IN_SCREEN_TIME_IN_SECONDS=0
 
-  readonly COMMIT1=$(construct_notification "pengwynn commented on an issue in Hello-World" "The first commit" https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180)
-  readonly COMMIT2=$(construct_notification "pengwynn commented on an issue in Hello-World" "The second commit" https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180)
+  readonly COMMIT1=$(construct_notification "pengwynn commented on an issue in Hello-World" "The first commit" \
+   https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180 https://avatars2.githubusercontent.com/u/865?v=4)
+  readonly COMMIT2=$(construct_notification "pengwynn commented on an issue in Hello-World" "The second commit" \
+  https://github.com/octokit/octokit.rb/pull/123#issuecomment-7627180 https://avatars2.githubusercontent.com/u/865?v=4)
   readonly COMMIT3=$(construct_notification "dlackty updated an issue in Hello-World" $'As titled. (Ref: #118.)\nPlease help review and let me know if there is a problem. Thanks!\n' \
-  https://github.com/octokit/octokit.rb/pull/123)
+  https://github.com/octokit/octokit.rb/pull/123 https://avatars1.githubusercontent.com/u/14349?v=4)
   readonly COMMIT4=$(construct_notification "pengwynn closed an issue in Hello-World" $'As titled. (Ref: #118.)\nPlease help review and let me know if there is a problem. Thanks!\n' \
-  https://github.com/octokit/octokit.rb/pull/123)
+  https://github.com/octokit/octokit.rb/pull/123 https://avatars2.githubusercontent.com/u/865?v=4)
   readonly NOTIFICATIONS_JSON=$(cat $CURRENT_DIR/data/list_of_notifications.json)
 }
 
