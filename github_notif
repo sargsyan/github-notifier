@@ -28,6 +28,12 @@ function show_notification () {
   updated_at=\(.updated_at)
   "')"
 
+  local call_result=$?
+  if [[ $call_result -ne 0 ]]; then
+    log_error "Failed to parse notifications list"
+    return 1
+  fi
+
   notification_type=$(echo $notification_type | sed 's|PullRequest|a PR|;s|Issue|an issue|;s|Commit|a commit|')
 
   # sometimes latest_comment_url="null", for example when PR title is set
