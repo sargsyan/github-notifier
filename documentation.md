@@ -10,9 +10,15 @@ Documentation
 - [Troubleshooting](#troubleshooting)
 - [Support](#support)
 
+# Description
+
+The application will show real-time notifications from Github and Github enterprise instances. One of the most important focuses of the application is to provide the most information with the notification banner, so that users would not need to click and open the details in a browser unless they want to participate in the thread. This will allow users to get updated on what is going on in the projects that they are interested without getting interupted from their daily tasks.
+
 # How to generate github notifications token
 
-Click on you user Icon in the top right part for github.com website or github enterprise server, Go to settings.
+Click on you user Icon in the top right part for Github website or Github enterprise server, Go to settings.
+
+
 
 Go to "Developer settings" page. Then go to "Personal access tokens" page an click on "Generate new token". Enter your password in newly opened login screen.
 
@@ -20,6 +26,11 @@ On successful login Personal access tokens page will be updated with available s
 
 You will see the value of the generated token. Copy the value and you have it
 
-## Note that once you will close the page you cannot fetch the value again. 
+**Note that once you will close the page you cannot fetch the value again.** 
 
 If you didn't configure the value with github notifier you can either generated new token or click on the existing token and push "Regenerate token button". When you regenerate the token make sure that applications and services don't use the old value of the token, because the old will become invalid.
+
+# Comparison to with other tools
+
+# Support
+in case of problems, you can [create an issue](https://github.com/sargsyan/github-notifier/issues) 
