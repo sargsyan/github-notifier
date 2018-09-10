@@ -24,7 +24,7 @@ Go to "Developer settings" page.
 
 ![Developer settings](https://github.com/sargsyan/github-notifier/blob/gh-pages/assets/images/developer%20settings.png)
 
-Then go to "Personal access tokens" page and click on "Generate new token". 
+Then go to "Personal access tokens" page
 
 ![Personal access tokens](https://github.com/sargsyan/github-notifier/blob/gh-pages/assets/images/personal%20access%20tokens.png)
 
