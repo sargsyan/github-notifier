@@ -18,13 +18,27 @@ The application will show real-time notifications from Github and Github enterpr
 
 Click on you user Icon in the top right part for Github website or Github enterprise server, Go to settings.
 
+![settings](https://github.com/sargsyan/github-notifier/blob/gh-pages/assets/images/settings.png)
 
+Go to "Developer settings" page.
 
-Go to "Developer settings" page. Then go to "Personal access tokens" page an click on "Generate new token". Enter your password in newly opened login screen.
+![Developer settings](https://github.com/sargsyan/github-notifier/blob/gh-pages/assets/images/developer%20settings.png)
+
+Then go to "Personal access tokens" page and click on "Generate new token". 
+
+![Personal access tokens](https://github.com/sargsyan/github-notifier/blob/gh-pages/assets/images/personal%20access%20tokens.png)
+
+and click on "Generate new token"
+
+![Generate new token](https://github.com/sargsyan/github-notifier/blob/gh-pages/assets/images/generate%20new%20token.png)
+
+Enter your password in newly opened login screen.
 
 On successful login Personal access tokens page will be updated with available scopes. Add description for the token, tick on a "notifications" scope and click "Generate token".
 
-You will see the value of the generated token. Copy the value and you have it
+![Generate token](https://github.com/sargsyan/github-notifier/blob/gh-pages/assets/images/generate%20token.png)
+
+You will see the value of the generated token. Copy the value and you have it.
 
 **Note that once you will close the page you cannot fetch the value again.** 
 
