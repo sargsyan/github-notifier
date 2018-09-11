@@ -18,7 +18,7 @@ The application will show real-time notifications from Github and Github enterpr
 
 Click on you user Icon in the top right part for Github website or Github enterprise server, Go to settings.
 
-![settings]({{ site.url }}/assets/images/settings.png)
+![settings](assets/images/settings.png)
 
 Go to "Developer settings" page.
 
