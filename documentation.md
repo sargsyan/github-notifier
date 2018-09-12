@@ -18,25 +18,25 @@ The application will show real-time notifications from Github and Github enterpr
 
 Click on you user Icon in the top right part for Github website or Github enterprise server, Go to settings.
 
-![settings](assets/images/settings.png)
+<img src="assets/images/settings.png" alt="Settings" width="20%" height="20%">
 
 Go to "Developer settings" page.
 
-![Developer settings](assets/images/developer%20settings.png)
+<img src="assets/images/developer%20settings.png" alt="Developer settings" width="20%" height="20%">
 
 Then go to "Personal access tokens" page
 
-![Personal access tokens](assets/images/personal%20access%20tokens.png)
+<img src="assets/images/personal%20access%20tokens.png" alt="Personal access tokens" width="20%" height="20%">
 
 and click on "Generate new token"
 
-![Generate new token](assets/images/generate%20new%20token.png)
+<img src="assets/images/generate%20new%20token.png" alt="Generate new token" width="50%">
 
 Enter your password in newly opened login screen.
 
 On successful login Personal access tokens page will be updated with available scopes. Add description for the token, tick on a "notifications" scope and click "Generate token".
 
-![Generate token](assets/images/generate%20token.png)
+<img src="assets/images/generate%20token.png" alt="Generate token" width="50%" height="50%">
 
 You will see the value of the generated token. Copy the value and you have it.
 
