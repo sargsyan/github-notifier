@@ -57,7 +57,7 @@ If you didn't configure the value with github notifier you can either generated 
 
 # Comparison to other tools and techniques
 
-Disclaimer! This is not definitive comparison with all the available tools. The comparison is done with the main popular tools. The opinions can be subjective. The whole idea of the section is to help users to choose the tools which best suits to their needs.
+**Disclaimer!** This is not definitive comparison with all the available tools. The comparison is done with the main popular tools. The opinions can be subjective. The whole idea of the section is to help users to choose the tools which best suits to their needs.
 
 ## Notifier for GitHub
 
