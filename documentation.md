@@ -58,6 +58,7 @@ The Chrome extension supports Github and Github enterprise server. However, you 
 
 Users can enable RSS feeds from github.com or Github Enterprise server by clicking to "Subscribe to your news feed" as shown below
 
+<img src="assets/images/Enable%20RSS%20Notifications.png" alt="Enable RSS Notifications" width="45%" height="45%">
 
 Then you can install one of the RSS feed notifier browser extension or a desktop application and get the notification popups
 
