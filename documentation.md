@@ -1,11 +1,9 @@
-Documentation
-
-## Table of Contents
+# Table of Contents
 
 - [Description](#description)
-- [Tips and tricks](#how-to-use)
+- [Tips and tricks](#tips-and-tricks)
 - [Installing](#installing)
-- [Comparison to with other tools and techniques](#comparison-to-with-other-tools-and-techniques)
+- [Comparison to other tools and techniques](#comparison-to-other-tools-and-techniques)
 - [How to generate github notifications token](#how-to-generate-github-notifications-token)
 - [Troubleshooting](#troubleshooting)
 - [Support](#support)
@@ -13,6 +11,19 @@ Documentation
 # Description
 
 [github-notifier](https://github.com/sargsyan/github-notifier) will show real-time notifications from Github and Github enterprise instances. One of the most important focuses of the application is to provide the most information with the notification banner, so that users would not need to click and open the details in a browser unless they want to participate in the thread. This will allow users to get updated on what is going on in the projects that they are interested without getting interupted from their daily tasks.
+
+# Tips and tricks
+
+to check the whole body of the PR/Issue or comments long descriptions, users can hover mouse on the bottom part of the popup. When the mouse icon will change accordingly users can expand the popup and read whole message. The popup will not disappear until mouse is on the popup.
+
+# Installing
+
+Currently installation is supported only from source code. To install [github-notifier](https://github.com/sargsyan/github-notifier) users need to do following steps
+
+```
+git clone git@github.com:sargsyan/github-notifier.git
+make install
+```
 
 # How to generate github notifications token
 
@@ -44,7 +55,7 @@ You will see the value of the generated token. Copy the value and you have it.
 
 If you didn't configure the value with github notifier you can either generated new token or click on the existing token and push "Regenerate token button". When you regenerate the token make sure that applications and services don't use the old value of the token, because the old will become invalid.
 
-# Comparison to with other tools and techniques
+# Comparison to other tools and techniques
 
 Disclaimer: This is not definitive comparison with all the available tools. The comparison is done with the main popular tools.
 
