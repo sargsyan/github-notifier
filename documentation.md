@@ -1,15 +1,12 @@
 # Table of Contents
 
-- [Description](#description)
 - [Tips and tricks](#tips-and-tricks)
-- [Comparison to other tools and techniques](#comparison-to-other-tools-and-techniques)
 - [How to generate github notifications token](#how-to-generate-github-notifications-token)
+- [Comparison to other tools and techniques](#comparison-to-other-tools-and-techniques)
+- [Configurations](#configurations)
+- [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 - [Support](#support)
-
-# Description
-
-[github-notifier](https://github.com/sargsyan/github-notifier) will show real-time notifications from Github and Github enterprise instances. One of the most important focuses of the application is to provide the most information with the notification banner, so that users would not need to click and open the details in a browser unless they want to participate in the thread. This will allow users to get updated on what is going on in the projects that they are interested without getting interupted from their daily tasks.
 
 # Tips and tricks
 
@@ -68,6 +65,34 @@ Then you can install one of the RSS feed notifier browser extension or a desktop
 ## Octobox
 
 [Octobox](https://github.com/octobox/octobox) is impressive tool for github.com accounts. It does not show notifications popups but it keeps the history of all notifications in github in well organized and user friendly way. One can say that [github-notifier](https://github.com/sargsyan/github-notifier) and [Octobox](https://github.com/octobox/octobox) can be used together, one of real time notifications and the other for the history.
+
+# Configurations
+
+The application is designed to run for multiple github instances on the same time.One instance is github.com the others are github enterprise instances.
+Generally you will need to have one or two configurations. You can list, create, remove, activate and deactivate configurations. to get the help for configure.sh just run.
+
+```sh
+./configure.sh
+````
+
+# Testing
+
+If something is not working in your system and you are sure that configurations are correct you can run unit tests for your system to see if system behaves correctly. For this you need to install test framework shell scripts and run unit tests locally
+
+```sh
+brew install shunit2
+make test
+```
+
+# Troubleshooting
+
+To check the daemon logs for the error use
+
+```sh
+tail -f /var/log/system.log
+```
+
+if the system logs tell that the application keeps exiting with non-zero exit codes, you can check the service logs in the **~/Library/Logs/github_notif/service.log** file or locate github_notif folder in Mac OSX Console application.
 
 # Support
 in case of problems, you can [create an issue](https://github.com/sargsyan/github-notifier/issues)

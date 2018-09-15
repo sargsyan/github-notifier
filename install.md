@@ -4,3 +4,9 @@ Currently installation is supported only from source code. To install [github-no
 git clone git@github.com:sargsyan/github-notifier.git
 make install
 ```
+
+To uninstall application run
+
+```sh
+make uninstall
+```
