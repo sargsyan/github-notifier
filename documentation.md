@@ -2,7 +2,6 @@
 
 - [Description](#description)
 - [Tips and tricks](#tips-and-tricks)
-- [Installing](#installing)
 - [Comparison to other tools and techniques](#comparison-to-other-tools-and-techniques)
 - [How to generate github notifications token](#how-to-generate-github-notifications-token)
 - [Troubleshooting](#troubleshooting)
@@ -15,15 +14,6 @@
 # Tips and tricks
 
 to check the whole body of the Pull request/Issue or comments long descriptions, users can hover mouse on the bottom part of the popup. When the mouse icon will change accordingly users can expand the popup and read whole message. The popup will not disappear until mouse is on the popup.
-
-# Installing
-
-Currently installation is supported only from source code. To install [github-notifier](https://github.com/sargsyan/github-notifier) users need to do following steps
-
-```
-git clone git@github.com:sargsyan/github-notifier.git
-make install
-```
 
 # How to generate github notifications token
 
@@ -51,7 +41,7 @@ On successful login Personal access tokens page will be updated with available s
 
 You will see the value of the generated token. Copy the value and you have it.
 
-**Note that once you will close the page you cannot fetch the value again.** 
+**Note that once you will close the page you cannot fetch the value again.**
 
 If you didn't configure the value with github notifier you can either generated new token or click on the existing token and push "Regenerate token button". When you regenerate the token make sure that applications and services don't use the old value of the token, because the old will become invalid.
 
@@ -80,4 +70,4 @@ Then you can install one of the RSS feed notifier browser extension or a desktop
 [Octobox](https://github.com/octobox/octobox) is impressive tool for github.com accounts. It does not show notifications popups but it keeps the history of all notifications in github in well organized and user friendly way. One can say that [github-notifier](https://github.com/sargsyan/github-notifier) and [Octobox](https://github.com/octobox/octobox) can be used together, one of real time notifications and the other for the history.
 
 # Support
-in case of problems, you can [create an issue](https://github.com/sargsyan/github-notifier/issues) 
+in case of problems, you can [create an issue](https://github.com/sargsyan/github-notifier/issues)
