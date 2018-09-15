@@ -3,11 +3,11 @@
 
 @import "{{ site.theme }}";
 
-ul {
+.no-padding {
   margin:0;
   padding:0;
 }
 
-li {
+.horizontal {
   display: inline;
 }
