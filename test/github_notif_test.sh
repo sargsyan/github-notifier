@@ -92,7 +92,7 @@ test_show_notification_on_closed_commit() {
 
 test_show_all_notifications() {
   show_all_notifications https://github.com
-  verify_with_all_args terminal_notifier "More missed notifications on github.com" "See all" "" https://github.com/notifications $DIR_NAME/logo.png
+  verify_with_all_args terminal_notifier "More missed notifications on github.com" "See all" "" https://github.com/notifications
 }
 
 test_show_missed_notifications_when_no_notification() {
@@ -146,7 +146,7 @@ test_show_missed_notifications_on_more_than_two_notifications() {
   assertEquals 1415397705 $(cat $SHUNIT_TMPDIR/last_shown_date)
   verify_with_all_args terminal_notifier "$COMMIT1"
   verify_with_all_args terminal_notifier "$COMMIT2"
-  verify_with_all_args terminal_notifier "More missed notifications on github.com" "See all" "" https://github.com/notifications $DIR_NAME/logo.png
+  verify_with_all_args terminal_notifier "More missed notifications on github.com" "See all" "" https://github.com/notifications
 }
 
 test_show_missed_notifications_on_failing_notification_details_call() {
@@ -155,7 +155,7 @@ test_show_missed_notifications_on_failing_notification_details_call() {
   show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_date > $SHUNIT_TMPDIR/last_shown_date
   assertEquals 1 $?
   verify_with_all_args terminal_notifier "$COMMIT2"
-  verify_with_all_args terminal_notifier "More missed notifications on github.com" "See all" "" https://github.com/notifications $DIR_NAME/logo.png
+  verify_with_all_args terminal_notifier "More missed notifications on github.com" "See all" "" https://github.com/notifications
 }
 
 test_show_notifications_on_missing_active_configs() {

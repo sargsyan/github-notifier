@@ -1,6 +1,8 @@
 #!/bin/bash
 
+readonly LIB_DIR_NAME=$(dirname $BASH_SOURCE)
 readonly EMOJIFY=$([ -x "$(command -v emojify)" ] && echo emojify || echo cat)
+TERMINAL_NOTIFIER=$LIB_DIR_NAME/../github-notifier.app/Contents/MacOS/terminal-notifier
 
 function show_notification_window() {
   local title=$(echo $1 | $EMOJIFY)
@@ -14,5 +16,5 @@ function show_notification_window() {
   local title=$(echo $title | sed 's|^\[\(.*\)\]|\1|' | sed -E 's|^[\[\<]+||')
   local message=$(echo $message | sed 's|^\[\(.*\)\]|\1|' | sed -E 's|^[\[\<]+||')
 
-  terminal-notifier --group 1 -title "$title" -subtitle "$subtitle" -message "$message" -open $link -appIcon $icon
+  $TERMINAL_NOTIFIER --group 1 -title "$title" -subtitle "$subtitle" -message "$message" -open $link -appIcon $icon
 }
