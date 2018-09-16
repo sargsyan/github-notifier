@@ -1,8 +1,8 @@
 #!/bin/bash
 
-readonly DIR_NAME=$(dirname $BASH_SOURCE)
+readonly APP_DIR_NAME=$(dirname $BASH_SOURCE)
 readonly EMOJIFY=$([ -x "$(command -v emojify)" ] && echo emojify || echo cat)
-TERMINAL_NOTIFIER=$DIR_NAME/github-notifier.app/Contents/MacOS/terminal-notifier
+TERMINAL_NOTIFIER=$APP_DIR_NAME/github-notifier.app/Contents/MacOS/terminal-notifier
 
 function show_notification_window() {
   local title=$(echo $1 | $EMOJIFY)
