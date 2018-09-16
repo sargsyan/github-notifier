@@ -4,8 +4,8 @@
 
 function oneTimeSetUp() {
   shopt -s expand_aliases
-  alias terminal-notifier=mock_terminal_notifier
   . lib/notifier.sh
+  TERMINAL_NOTIFIER=mock_terminal_notifier
 }
 
 function test_with_all_args() {
