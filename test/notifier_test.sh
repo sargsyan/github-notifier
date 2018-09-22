@@ -23,7 +23,7 @@ function test_with_multiline_body() {
   local message="line 1
   line 2"
   show_notification_window title subtitle "$message" link icon
-  verify_with_all_args terminal_notifier "--group 1 -title title -subtitle subtitle -message line 1 line 2 -open link -appIcon icon"
+  verify_with_all_args terminal_notifier "--group 1 -title title -subtitle subtitle -message $message -open link -appIcon icon"
 }
 
 function test_when_invalid_characters_are_used_for_terminal_notifier() {

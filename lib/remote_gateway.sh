@@ -4,7 +4,7 @@ function do_github_remote_call() {
   local url=$1
   local access_token=$2
   local response
-  response=$(curl -w "%{http_code}" $url -H "Authorization: token $access_token" 2>/dev/null)
+  response=$(curl -w "%{http_code}" "$url" -H "Authorization: token $access_token" 2>/dev/null)
   local call_result=$?
   if [[ $call_result -ne 0 ]]; then
     echo "Failed to connect to $url"
@@ -25,6 +25,6 @@ function do_github_remote_call() {
       return 1
     fi
   fi
-  echo $response_body
+  echo "$response_body"
   return 0
 }
