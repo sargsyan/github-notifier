@@ -1,12 +1,13 @@
-Currently installation is supported only from source code. To install [github-notifier](https://github.com/sargsyan/github-notifier) users need to do following steps
+# Install
 
 ```
-git clone git@github.com:sargsyan/github-notifier.git
-make install
+brew install sargsyan/github-notifier/github-notifier
+github-notifier-install
 ```
 
-To uninstall application run
+# Uninstall
 
-```sh
-make uninstall
+```
+github-notifier-uninstall
+brew uninstall sargsyan/github-notifier/github-notifier
 ```
