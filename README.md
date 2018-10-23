@@ -1,6 +1,6 @@
 # github-notifier
 
-[![Build Status](https://travis-ci.org/sargsyan/github-notifier.svg?branch=master)](https://travis-ci.org/sargsyan/github-notifier) [![codecov](https://codecov.io/gh/sargsyan/github-notifier/branch/master/graph/badge.svg)](https://codecov.io/gh/sargsyan/github-notifier)
+[![Build Status](https://travis-ci.org/sargsyan/github-notifier.svg?branch=master)](https://travis-ci.org/sargsyan/github-notifier) [![codecov](https://codecov.io/gh/sargsyan/github-notifier/branch/master/graph/badge.svg)](https://codecov.io/gh/sargsyan/github-notifier) [![Join the chat at https://gitter.im/github_notifier/Lobby](https://badges.gitter.im/github_notifier/Lobby.svg)](https://gitter.im/github_notifier/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Summary:
 
