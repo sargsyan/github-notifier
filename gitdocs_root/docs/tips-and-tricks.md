@@ -1,0 +1,3 @@
+# Tips and tricks
+
+to check the whole body of the Pull request/Issue or comments long descriptions, users can hover mouse on the bottom part of the popup. When the mouse icon will change accordingly users can expand the popup and read whole message. The popup will not disappear until mouse is on the popup.
