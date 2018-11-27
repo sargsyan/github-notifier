@@ -24,8 +24,9 @@ Examples:
 
    Add a new configuration:
    $APP_NAME add github.mycompany.com
-   Github access token for config:
-   $APP_NAME add github.mycompany.com asasfsa23fq3dsf
+   
+   Deactivate a configuration:
+   $APP_NAME deactivate github.mycompany.com
 
    Remove a configuration:
    $APP_NAME rm my_company
