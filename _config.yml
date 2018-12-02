@@ -1,9 +1,9 @@
 # Site settings
-title: github-notifier
+title: Github notifier
 email:
 description: Github desktop notifications in macOS
-baseurl: "/github-notifier/" # the subpath of your site, e.g. /blog/
-url: "https://sargsyan.github.io/" # the base hostname & protocol for your site
+baseurl: "/" # the subpath of your site, e.g. /blog/
+url: "https://sargsyan.github.io/github-notifier/" # the base hostname & protocol for your site
 
 twitter_username:
 github_username:
