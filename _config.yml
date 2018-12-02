@@ -1,5 +1,5 @@
 # Site settings
-title: Github notifier
+title: Github notifier - github desktop notifications in macOS
 email:
 description: Github desktop notifications in macOS
 baseurl: "/" # the subpath of your site, e.g. /blog/
