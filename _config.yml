@@ -2,7 +2,7 @@
 title: Github notifier
 email:
 description: github desktop notifications in macOS
-baseurl: "https://sargsyan.github.io/github-notifier/" # the subpath of your site, e.g. /blog/
+baseurl: "github-notifier" # the subpath of your site, e.g. /blog/
 url: # the base hostname & protocol for your site
 
 twitter_username:
