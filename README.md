@@ -12,7 +12,7 @@ Supported for OS X Yosemite and newer versions
 
 ## Instructions for installation and usage 
 
-https://sargsyan.github.io/github-notifier/install.html
+https://githubnotifier.net/#install
 
 ## Instructions for playing with source code
 
