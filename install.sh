@@ -40,6 +40,7 @@ function main() {
   mkdir -p $LAUNCH_AGENTS_DIR
   cp org.github-notif.get.plist $LAUNCH_AGENTS_DIR &&
   rm org.github-notif.get.plist
+  launchctl unload $LAUNCH_AGENTS_DIR/org.github-notif.get.plist > /dev/null # unload the old service when it was loaded before. Ignore the error message if service is not insatlled
   launchctl load -w $LAUNCH_AGENTS_DIR/org.github-notif.get.plist
   local github_url=https://github.com
   if ! config_exists $github_url; then
