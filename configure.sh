@@ -7,15 +7,16 @@ readonly DIR_NAME=$(dirname $BASH_SOURCE)
 
 function usage() {
 cat <<- EOF
-usage:
+
+Usage:
   $APP_NAME list
   $APP_NAME add <github instance url> [<access token>]
-  $APP_NAME rm <config name>
-  $APP_NAME activate <config name>
-  $APP_NAME deactivate <config name>
-  $APP_NAME token update <config name> [<new token>]
+  $APP_NAME rm <github instance url>
+  $APP_NAME activate <github instance url>
+  $APP_NAME deactivate <github instance url>
+  $APP_NAME token update <github instance url> [<new token>]
 
-Used to manage github instances. Normally, the most popular github instance is github.com.
+Normally, the most popular github instance is https://github.com
 The other instances are github enterprise instances.
 
 Examples:
@@ -23,16 +24,16 @@ Examples:
    $APP_NAME list
 
    Add a new configuration:
-   $APP_NAME add github.mycompany.com
+   $APP_NAME add https://github.mycompany.com
    
    Deactivate a configuration:
-   $APP_NAME deactivate github.mycompany.com
+   $APP_NAME deactivate https://github.mycompany.com
 
    Remove a configuration:
-   $APP_NAME rm my_company
+   $APP_NAME rm https://github.mycompany.com
 
    Reset token
-   $APP_NAME token update my_company new_token
+   $APP_NAME token update github.mycompany.com new_token
 EOF
 }
 

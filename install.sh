@@ -37,6 +37,7 @@ function main() {
   mkdir -p $(dirname $LOGFILE_PATH)
   touch $LOGFILE_PATH
   echo "$(get_plist_body)" > org.github-notif.get.plist
+  mkdir -p $LAUNCH_AGENTS_DIR
   cp org.github-notif.get.plist $LAUNCH_AGENTS_DIR &&
   rm org.github-notif.get.plist
   launchctl load -w $LAUNCH_AGENTS_DIR/org.github-notif.get.plist
