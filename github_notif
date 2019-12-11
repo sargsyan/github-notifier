@@ -155,7 +155,13 @@ function main() {
     local notifications_json
     access_token=$(get_token "$config_name")
 
-    local notifications_api_url="${config_name/https:\/\//https://api.}"/notifications
+    local notifications_api_url
+    if [[ "$config_name" == "https://github.com" ]]; then
+      notifications_api_url="${config_name/https:\/\//https://api.}"/notifications
+    else
+      notifications_api_url="${config_name}/api/v3/notifications"
+    fi
+
     notifications_json=$(do_github_remote_call "$notifications_api_url" "$access_token")
     local call_result=$?
     if [[ $call_result -ne 0 ]]; then
