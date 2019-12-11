@@ -159,7 +159,7 @@ function main() {
     if [[ "$config_name" == "https://github.com" ]]; then
       notifications_api_url="${config_name/https:\/\//https://api.}"/notifications
     else
-      notifications_api_url="${config_name}/v3/api/notifications"
+      notifications_api_url="${config_name}/api/v3/notifications"
     fi
 
     notifications_json=$(do_github_remote_call "$notifications_api_url" "$access_token")
