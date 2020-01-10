@@ -12,7 +12,18 @@ Supported for OS X Yosemite and newer versions
 
 ## Instructions for installation and usage 
 
-https://githubnotifier.net/#install
+```sh
+brew install sargsyan/github-notifier/github-notifier
+github-notifier-install
+```
+
+Add more Github enterprise instances or change configurations with
+
+```sh
+github-notifier-configure
+```
+
+More information on installation is on https://githubnotifier.net/#install
 
 ## Instructions for playing with source code
 
