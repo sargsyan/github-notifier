@@ -128,6 +128,10 @@ function show_missed_notifications() {
 
   for ((i = 0; i < $MAX_NUMBER_OF_MISSED_NOTIFICATIONS_TO_SHOW; i++)); do
     if (( $shown_date < ${latest_commit_dates[$i]:-INSTANT_OF_THE_BIG_BANG} )); then
+      if ((i != 0)); then
+        sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
+      fi
+
       error_message=$(show_notification "$access_token" "$notifications_json" $i)
       local call_result=$?
       if [[ $call_result -ne 0 ]]; then
@@ -135,8 +139,6 @@ function show_missed_notifications() {
         if (( $NOTIFY_ABOUT_FAILED_NOTIFICATIONS == 1 )); then
           show_notification_about_failure "$config_url" "$error_message"
         fi;
-      else
-        sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
       fi
     else
       break;
