@@ -2,6 +2,8 @@
 
 readonly DIR_NAME=$(dirname "$BASH_SOURCE")
 readonly MAX_NUMBER_OF_MISSED_NOTIFICATIONS_TO_SHOW=2
+readonly INSTANT_OF_THE_BIG_BANG=-1
+readonly NOTIFY_ABOUT_FAILED_NOTIFICATIONS=1
 KEEP_IN_SCREEN_TIME_IN_SECONDS=5
 PATH=$PATH:/usr/local/bin
 
@@ -109,6 +111,12 @@ function show_all_notifications () {
   show_notification_window "More missed notifications on $(get_resource_name "$config_url")" "See all" "" "$config_url/notifications"
 }
 
+function show_notification_about_failure () {
+  config_url=$1
+  error_message=$2
+  show_notification_window "Failed to fetch a notification" "$error_message" "$config_url/notifications"
+}
+
 function show_missed_notifications() {
   local config_url=$1
   local access_token=$2
@@ -119,26 +127,30 @@ function show_missed_notifications() {
   egrep '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z' | xargs -n 1 date -u -j -f "%Y-%m-%dT%TZ" +"%s") )
 
   for ((i = 0; i < $MAX_NUMBER_OF_MISSED_NOTIFICATIONS_TO_SHOW; i++)); do
-    if (( $shown_date < ${latest_commit_dates[$i]:--1} )); then
+    if (( $shown_date < ${latest_commit_dates[$i]:-INSTANT_OF_THE_BIG_BANG} )); then
+      if ((i != 0)); then
+        sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
+      fi
+
       error_message=$(show_notification "$access_token" "$notifications_json" $i)
       local call_result=$?
       if [[ $call_result -ne 0 ]]; then
         log_error "An error occured while showing notification. $error_message"
-        exit_code=1
-      else
-        sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
+        if (( $NOTIFY_ABOUT_FAILED_NOTIFICATIONS == 1 )); then
+          show_notification_about_failure "$config_url" "$error_message"
+        fi;
       fi
     else
       break;
     fi
   done
 
-  if (( $shown_date < ${latest_commit_dates[2]:--1} )); then
+  if (( $shown_date < ${latest_commit_dates[2]:-INSTANT_OF_THE_BIG_BANG} )); then
     show_all_notifications "$config_url"
     sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
   fi
 
-  (( $exit_code == 0 && $shown_date > ${latest_commit_dates[0]:--1} )) && echo "$shown_date" || echo "${latest_commit_dates[0]}"
+  (( $shown_date > ${latest_commit_dates[0]:-INSTANT_OF_THE_BIG_BANG} )) && echo "$shown_date" || echo "${latest_commit_dates[0]}"
   return $exit_code
 }
 
@@ -172,12 +184,13 @@ function main() {
 
     local updated_last_shown_commit_date
     updated_last_shown_commit_date=$(show_missed_notifications "$config_name" "$access_token" "$notifications_json" "$last_shown_commit_date")
-    local call_result=$?
-    if [[ $call_result -ne 0 ]]; then
-      log_error "Cannot save last shown commit date. $updated_last_shown_commit_date"
-      exit_code=1
-    else
+    if [[ "$updated_last_shown_commit_date" != "$last_shown_commit_date" ]]; then
       save_last_shown_commit_date "$config_name" "$updated_last_shown_commit_date"
+      local call_result=$?
+      if [[ $call_result -ne 0 ]]; then
+        log_error "Cannot save last shown commit date. $updated_last_shown_commit_date"
+        exit_code=1
+      fi
     fi
   done
 

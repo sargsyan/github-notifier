@@ -153,8 +153,8 @@ test_show_missed_notifications_on_failing_notification_details_call() {
   alias do_github_remote_call=mock_failing_notification_details_call
   local shown_date=0
   show_missed_notifications https://github.com token "$NOTIFICATIONS_JSON" $shown_date > $SHUNIT_TMPDIR/last_shown_date
-  assertEquals 1 $?
-  verify_with_all_args terminal_notifier "$COMMIT2"
+  assertEquals 0 $?
+  verify_with_all_args terminal_notifier "Failed to fetch a notification Failed to connect to https://api.github.com/repos/octokit/octokit.rb/issues/comments/123 https://github.com/notifications"
   verify_with_all_args terminal_notifier "More missed notifications on github.com" "See all" "" https://github.com/notifications
 }
 
