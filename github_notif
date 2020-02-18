@@ -114,7 +114,7 @@ function show_all_notifications () {
 function show_notification_about_failure () {
   config_url=$1
   error_message=$2
-  show_notification_window "Failed to fetch a notification" "$error_message" "$config_url/notifications"
+  show_notification_window "Failed to fetch a notification" "$error_message" "" "$config_url/notifications"
 }
 
 function show_missed_notifications() {
@@ -135,7 +135,6 @@ function show_missed_notifications() {
       error_message=$(show_notification "$access_token" "$notifications_json" $i)
       local call_result=$?
       if [[ $call_result -ne 0 ]]; then
-        log_error "An error occured while showing notification. $error_message"
         if (( $NOTIFY_ABOUT_FAILED_NOTIFICATIONS == 1 )); then
           show_notification_about_failure "$config_url" "$error_message"
         fi;
