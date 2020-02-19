@@ -25,6 +25,10 @@ github-notifier-configure
 
 More information on installation is on https://githubnotifier.net/#install
 
+If you like the application, please ★ the repo - it helps!
+<br/>
+<br/>
+
 ## Instructions for playing with source code
 
 ### Prerequisites
