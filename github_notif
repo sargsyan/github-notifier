@@ -144,9 +144,9 @@ function show_missed_notifications() {
     fi
   done
 
-  if (( $shown_date < ${latest_commit_dates[2]:-INSTANT_OF_THE_BIG_BANG} )); then
-    show_all_notifications "$config_url"
+  if (( i!=0 && $shown_date < ${latest_commit_dates[2]:-INSTANT_OF_THE_BIG_BANG} )); then
     sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
+    show_all_notifications "$config_url"
   fi
 
   (( $shown_date > ${latest_commit_dates[0]:-INSTANT_OF_THE_BIG_BANG} )) && echo "$shown_date" || echo "${latest_commit_dates[0]}"
