@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP=github_notif
+APP=./github_notif
 readonly CURRENT_DIR=`dirname $0`
 
 . $CURRENT_DIR/lib/mock.sh
@@ -76,17 +76,17 @@ oneTimeSetUp() {
 }
 
 test_show_notification() {
-  show_notification token "$NOTIFICATIONS_JSON" 0
+  show_notification token "$NOTIFICATIONS_JSON" 0 "config_name"
   verify_with_all_args terminal_notifier "$COMMIT1"
 }
 
 test_show_notification_on_null_latest_commit_date() {
-  show_notification token "$NOTIFICATIONS_JSON" 3
+  show_notification token "$NOTIFICATIONS_JSON" 3 "config_name"
   verify_with_all_args terminal_notifier "$COMMIT3"
 }
 
 test_show_notification_on_closed_commit() {
-  show_notification token "$NOTIFICATIONS_JSON" 4
+  show_notification token "$NOTIFICATIONS_JSON" 4 "config_name"
   verify_with_all_args terminal_notifier "$COMMIT4"
 }
 

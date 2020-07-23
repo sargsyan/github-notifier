@@ -4,9 +4,10 @@ LIB_DIR_NAME=$(dirname $BASH_SOURCE)
 . $LIB_DIR_NAME/macos/keychain_accessor.sh
 . $LIB_DIR_NAME/url.sh
 . $LIB_DIR_NAME/../constants.sh
+. $LIB_DIR_NAME/utils.sh
 
 [ -z $CONFIG_FILE_DIR ] && CONFIG_FILE_DIR=$HOME
-readonly CONFIG_FILE=$CONFIG_FILE_DIR/.${SERVICE_NAME}_conf
+readonly CONFIG_FILE=$CONFIG_FILE_DIR/$CONFIG_FILE_NAME
 readonly STATUS_ACTIVE='active'
 readonly STATUS_INACTIVE='inactive'
 
@@ -101,46 +102,27 @@ function get_token() {
 
 function list_configs() {
   ensure_config_file_is_created
-  cat $CONFIG_FILE
+  cat $CONFIG_FILE | grep -v $PROJECT_FILTER
 }
 
 function clear_all_configs() {
   ensure_config_file_is_created
-  local configs=$(cat $CONFIG_FILE | cut -d' ' -f1)
+  # To remove secrets tokens as well
+  local configs=$(list_configs | cut -d' ' -f1)
   for config in $configs; do
     remove_config $config
   done
+  # to remove project filters
+  echo "" > $CONFIG_FILE
 }
 
 function get_active_configs() {
   ensure_config_file_is_created
-  cat $CONFIG_FILE | grep ' active' | cut -d' ' -f1
+  list_configs | grep ' active' | cut -d' ' -f1
 }
 
 function ensure_config_file_is_created() {
   if [ ! -f $CONFIG_FILE ]; then
     touch $CONFIG_FILE
   fi
-}
-
-function assert_is_set() {
-  local arg_description=$1
-  local arg=$2
-  if [[ ! $arg ]]; then
-    show_error "$arg_description is not provided" && exit
-  fi
-}
-
-function assert_successful() {
-  local command_return_value=$1
-  local error_message=$2
-
-  if [ $command_return_value -ne 0 ]; then
-    echo $error_message;
-  fi
-}
-
-function show_error() {
-  local message=$1
-  [[ $message ]] && echo $message
 }

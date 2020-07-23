@@ -13,3 +13,4 @@ test:
 	./test/url_test.sh
 	./test/mock_test.sh
 	./test/notifier_test.sh
+	./test/filters_test.sh

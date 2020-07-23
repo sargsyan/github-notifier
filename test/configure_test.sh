@@ -18,6 +18,13 @@ tearDown() {
   $APP rm https://config_name4.com
 }
 
+oneTimeTearDown() {
+  $APP rm https://config_name.com
+  $APP rm https://config_name2.com
+  $APP rm https://config_name3.com
+  $APP rm https://config_name4.com
+}
+
 test_list_on_empty_configs() {
   assertEquals '' "$($APP list)"
 }
