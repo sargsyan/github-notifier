@@ -4,9 +4,10 @@ LIB_DIR_NAME=$(dirname $BASH_SOURCE)
 . $LIB_DIR_NAME/macos/keychain_accessor.sh
 . $LIB_DIR_NAME/url.sh
 . $LIB_DIR_NAME/../constants.sh
+. $LIB_DIR_NAME/utils.sh
 
 [ -z $CONFIG_FILE_DIR ] && CONFIG_FILE_DIR=$HOME
-readonly CONFIG_FILE=$CONFIG_FILE_DIR/.${SERVICE_NAME}_conf
+readonly CONFIG_FILE=$CONFIG_FILE_DIR/$CONFIG_FILE_NAME
 readonly STATUS_ACTIVE='active'
 readonly STATUS_INACTIVE='inactive'
 
@@ -41,9 +42,14 @@ function remove_config() {
   ensure_config_file_is_created
   assert_is_set "Configuration name" $1
   local config_name=$1
-  local line_number=$(grep -n "$config_name " $CONFIG_FILE| cut -f1 -d:)
-  if [ -n "$line_number" ]; then
-    sed -i .bak "${line_number}d" $CONFIG_FILE &&
+  local line_numbers=($(grep -n "$config_name " $CONFIG_FILE| cut -f1 -d:)) #find configuration and all its filters
+  local sed_removal_expression;
+  for line_number in ${line_numbers[@]}; do
+    sed_removal_expression+="${line_number}d;";
+  done
+
+  if [ ${#line_numbers[@]} -gt 0 ]; then
+    sed -i .bak "$sed_removal_expression" $CONFIG_FILE &&
     rm $CONFIG_FILE.bak
     remove_macos_config $config_name $SERVICE_NAME ${USER}
     assert_successful $? "Failed to remove $config_name"
@@ -101,12 +107,13 @@ function get_token() {
 
 function list_configs() {
   ensure_config_file_is_created
-  cat $CONFIG_FILE
+  cat $CONFIG_FILE | grep -v $PROJECT_FILTER
 }
 
 function clear_all_configs() {
   ensure_config_file_is_created
-  local configs=$(cat $CONFIG_FILE | cut -d' ' -f1)
+  # To remove secrets tokens as well
+  local configs=$(list_configs | cut -d' ' -f1)
   for config in $configs; do
     remove_config $config
   done
@@ -114,33 +121,11 @@ function clear_all_configs() {
 
 function get_active_configs() {
   ensure_config_file_is_created
-  cat $CONFIG_FILE | grep ' active' | cut -d' ' -f1
+  list_configs | grep ' active' | cut -d' ' -f1
 }
 
 function ensure_config_file_is_created() {
   if [ ! -f $CONFIG_FILE ]; then
     touch $CONFIG_FILE
   fi
-}
-
-function assert_is_set() {
-  local arg_description=$1
-  local arg=$2
-  if [[ ! $arg ]]; then
-    show_error "$arg_description is not provided" && exit
-  fi
-}
-
-function assert_successful() {
-  local command_return_value=$1
-  local error_message=$2
-
-  if [ $command_return_value -ne 0 ]; then
-    echo $error_message;
-  fi
-}
-
-function show_error() {
-  local message=$1
-  [[ $message ]] && echo $message
 }

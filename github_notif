@@ -8,6 +8,7 @@ KEEP_IN_SCREEN_TIME_IN_SECONDS=5
 PATH=$PATH:/usr/local/bin
 
 . "$DIR_NAME/lib/config_accessor.sh"
+. "$DIR_NAME/lib/filter_manager.sh"
 . "$DIR_NAME/lib/logger.sh"
 . "$DIR_NAME/lib/url.sh"
 . "$DIR_NAME/lib/notifier.sh"
@@ -18,11 +19,13 @@ function show_notification () {
   local access_token=$1
   local notifications_json=$2
   local notification_index=$3
+  local config_name=$4;
 
   eval "$(echo "$notifications_json" | jq ".[$notification_index]" |
   jq -r '@sh "
   latest_comment_url=\(.subject.latest_comment_url)
   repo=\(.repository.name)
+  repo_full_name=\(.repository.full_name)
   title=\(.subject.title)
   general_url=\(.subject.url)
   notification_type=\(.subject.type)
@@ -33,6 +36,35 @@ function show_notification () {
   if [[ $call_result -ne 0 ]]; then
     log_error "Failed to parse notifications list"
     return 1
+  fi
+
+  local active_project_filters=($(get_active_project_filters $config_name))
+  local should_ignore_project=0
+  if [[ "${#active_project_filters[@]}" -lt "2" ]]; then
+    : #no project filters nothing to do
+  elif [[ "${active_project_filters[0]}" == "$INCLUDED" ]]; then
+    local found=0
+    for included_project in "${active_project_filters[@]:1}"; do
+      if [[ "${repo_full_name}" == "${included_project}" ]]; then
+        found=1;
+        break;
+      fi
+    done
+    [[ $found == 0 ]] && should_ignore_project=1
+  elif [[ "${active_project_filters[0]}" == "$EXCLUDED" ]]; then
+    for excluded_project in "${active_project_filters[@]:1}"; do
+      if [[ "${repo_full_name}" == "${excluded_project}" ]]; then
+        should_ignore_project=1;
+        break;
+      fi
+    done
+  else
+    log_error "${active_project_filters[@]}"
+  fi
+
+  if [[ $should_ignore_project == 1 ]]; then
+    #return success to ignore showing notification of the blacklisted project
+    return 0
   fi
 
   notification_type=$(echo "$notification_type" | sed 's|PullRequest|a PR|;s|Issue|an issue|;s|Commit|a commit|')
@@ -128,24 +160,21 @@ function show_missed_notifications() {
 
   for ((i = 0; i < $MAX_NUMBER_OF_MISSED_NOTIFICATIONS_TO_SHOW; i++)); do
     if (( $shown_date < ${latest_commit_dates[$i]:-INSTANT_OF_THE_BIG_BANG} )); then
-      if ((i != 0)); then
-        sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
-      fi
 
-      error_message=$(show_notification "$access_token" "$notifications_json" $i)
+      error_message=$(show_notification "$access_token" "$notifications_json" $i "$config_url")
       local call_result=$?
       if [[ $call_result -ne 0 ]]; then
         if (( $NOTIFY_ABOUT_FAILED_NOTIFICATIONS == 1 )); then
           show_notification_about_failure "$config_url" "$error_message"
         fi;
       fi
+      sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
     else
       break;
     fi
   done
 
-  if (( i!=0 && $shown_date < ${latest_commit_dates[2]:-INSTANT_OF_THE_BIG_BANG} )); then
-    sleep $KEEP_IN_SCREEN_TIME_IN_SECONDS
+  if (( $shown_date < ${latest_commit_dates[2]:-INSTANT_OF_THE_BIG_BANG} )); then
     show_all_notifications "$config_url"
   fi
 
