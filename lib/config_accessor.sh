@@ -42,9 +42,14 @@ function remove_config() {
   ensure_config_file_is_created
   assert_is_set "Configuration name" $1
   local config_name=$1
-  local line_number=$(grep -n "$config_name " $CONFIG_FILE| cut -f1 -d:)
-  if [ -n "$line_number" ]; then
-    sed -i .bak "${line_number}d" $CONFIG_FILE &&
+  local line_numbers=($(grep -n "$config_name " $CONFIG_FILE| cut -f1 -d:)) #find configuration and all its filters
+  local sed_removal_expression;
+  for line_number in ${line_numbers[@]}; do
+    sed_removal_expression+="${line_number}d;";
+  done
+
+  if [ ${#line_numbers[@]} -gt 0 ]; then
+    sed -i .bak "$sed_removal_expression" $CONFIG_FILE &&
     rm $CONFIG_FILE.bak
     remove_macos_config $config_name $SERVICE_NAME ${USER}
     assert_successful $? "Failed to remove $config_name"
@@ -112,8 +117,6 @@ function clear_all_configs() {
   for config in $configs; do
     remove_config $config
   done
-  # to remove project filters
-  echo "" > $CONFIG_FILE
 }
 
 function get_active_configs() {
