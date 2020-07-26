@@ -8,11 +8,10 @@ Real-time notifications from github and github enterprise instances in your desk
 
 Supported for OS X Yosemite and newer versions
 
-## Instructions for installation and usage 
+## Instructions for installation and usage
 
 ```sh
-brew install sargsyan/github-notifier/github-notifier
-github-notifier-install
+brew install sargsyan/github-notifier/github-notifier && github-notifier-install
 ```
 
 Add more Github enterprise instances or change configurations with
@@ -23,7 +22,7 @@ github-notifier-configure
 
 More information on installation is on https://githubnotifier.net/#install
 
-If you like the application, please ★ the repo - it helps!
+If you like the application, please ★ the repo
 <br/>
 <br/>
 
@@ -70,10 +69,14 @@ make test
 
 ### Troubleshooting
 
-To check the daemon logs for the error use
+To check the daemon logs for the error, use
 
 ```sh
 tail -f /var/log/system.log
 ```
 
-if the system logs tell that the application keeps exiting with non-zero exit codes, you can check the service logs in the **~/Library/Logs/github_notif/service.log** file or locate github_notif folder in Mac OSX Console application.
+If the system logs tell that the application keeps exiting with non-zero exit codes, use
+```sh
+cat ~/Library/Logs/github_notif/service.log
+```
+Or locate github_notif folder in the Mac [Console application](https://support.apple.com/guide/console/welcome/mac).
