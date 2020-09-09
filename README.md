@@ -80,3 +80,10 @@ If the system logs tell that the application keeps exiting with non-zero exit co
 cat ~/Library/Logs/github_notif/service.log
 ```
 Or locate github_notif folder in the Mac [Console application](https://support.apple.com/guide/console/welcome/mac).
+
+Advanced users can change the source code on the installed package. For example, to change the code of the main script open the following files
+
+```sh
+ls /usr/local/Cellar/github-notifier/ #To get the current version
+vi /usr/local/Cellar/github-notifier/<current_version>/lib/github_notif
+```
